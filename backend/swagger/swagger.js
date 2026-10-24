@@ -1,6 +1,10 @@
 // swagger.js
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const swaggerOptions = {
   definition: {
@@ -8,28 +12,26 @@ const swaggerOptions = {
     info: {
       title: 'Quiz App API',
       version: '1.0.0',
-      description: 'API documentation for the Quiz App (Auth, Student, Teacher)',
+      description: 'API documentation for the Quiz App (Auth, Student, Teacher). ' +
+        'Authentication uses an httpOnly cookie named "token" that is set by /auth/login.',
     },
     servers: [
-      {
-        url:
-          process.env.NODE_ENV === 'development'
-            ? 'http://localhost:5000/api'
-            : 'https://quizapp-backend-frj2.onrender.com/api',
-      }, // Change for production
+      { url: '/api', description: 'Current server' },
+      { url: 'https://quizapp-backend-frj2.onrender.com/api', description: 'Production' },
     ],
     components: {
       securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+        cookieAuth: {
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'token',
         },
       },
     },
-    
+    security: [{ cookieAuth: [] }],
   },
-  apis: ['./routes/*.js'], // Path to your route files with Swagger annotations
+  // Absolute path so it works no matter which folder the server is started from
+  apis: [path.join(__dirname, '../routes/*.js')],
 };
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);

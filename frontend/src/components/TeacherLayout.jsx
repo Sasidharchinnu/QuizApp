@@ -11,19 +11,11 @@ import {
   FileText
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useEffect } from 'react';
 
 const TeacherLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { token, logout, loading } = useAuth();
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!loading && !token) {
-      navigate('/login');
-    }
-  }, [token, loading, navigate]);
+  const { user, logout } = useAuth(); // route access is guarded by ProtectedRoute
 
   const navigation = [
     { name: 'Dashboard', href: '/teacher/dashboard', icon: LayoutDashboard },
@@ -41,23 +33,19 @@ const TeacherLayout = ({ children }) => {
     navigate('/login');
   };
 
-  if (loading) {
-    return <div className="p-8 text-gray-500">Checking authentication...</div>;
-  }
-
-  if (!token) return null;
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-white shadow-lg border-r border-gray-200">
+        <div className="w-64 sticky top-0 h-screen bg-white shadow-lg border-r border-gray-200 flex flex-col justify-between">
+          <div>
           <div className="p-6">
             <div className="flex items-center space-x-2">
               <Brain className="h-8 w-8 text-blue-600" />
               <span className="text-xl font-bold text-gray-900">QuizAI</span>
             </div>
             <p className="text-sm text-gray-600 mt-1">Teacher Dashboard</p>
+            <p className="text-xs text-gray-400 mt-1 truncate">{user?.name}</p>
           </div>
 
           <nav className="mt-6">
@@ -79,8 +67,9 @@ const TeacherLayout = ({ children }) => {
               );
             })}
           </nav>
+          </div>
 
-          <div className="absolute bottom-0 w-64 p-6">
+          <div className="p-6">
             <button
               onClick={handleLogout}
               className="flex items-center text-gray-700 hover:text-red-600 transition-colors"

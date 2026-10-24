@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Brain, Mail, Lock, User, UserCheck } from 'lucide-react';
-import axios from '../../api/axios';
+import axios, { getErrorMessage } from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
@@ -13,38 +13,39 @@ const Register = () => {
     role: 'student',
   });
 
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { user: currentUser, login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
+    if (formData.password.length < 6) {
+      return setError('Password must be at least 6 characters');
+    }
     if (formData.password !== formData.confirmPassword) {
-      return alert('Passwords do not match');
+      return setError('Passwords do not match');
     }
 
+    setSubmitting(true);
     try {
       const { name, email, password, role } = formData;
 
-      const res = await axios.post(
-        '/auth/register',
-        { name, email, password, role },
-        { withCredentials: true }
-      );
-
+      // Registering also logs the user in (backend sets the cookie)
+      const res = await axios.post('/auth/register', { name, email, password, role });
       const user = res.data.user;
-
       login(user);
-
-      if (user.role === 'teacher') {
-        navigate('/teacher/dashboard');
-      } else {
-        navigate('/student/dashboard');
-      }
+      navigate(`/${user.role}/dashboard`);
     } catch (err) {
-      alert(err?.response?.data?.error || 'Registration failed.');
+      setError(getErrorMessage(err, 'Registration failed.'));
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  if (currentUser) return <Navigate to={`/${currentUser.role}/dashboard`} replace />;
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -64,6 +65,7 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && <p className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">{error}</p>}
             {/* Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
@@ -183,9 +185,10 @@ const Register = () => {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-teal-600 text-white py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-lg hover:shadow-xl"
+              disabled={submitting}
+              className="w-full disabled:opacity-60 bg-teal-600 text-white py-3 rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-lg hover:shadow-xl"
             >
-              Create Account
+              {submitting ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
 

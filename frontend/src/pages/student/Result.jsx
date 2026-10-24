@@ -8,11 +8,13 @@ import {
   ArrowLeft,
   Share2,
 } from 'lucide-react';
-import axios from '../../api/axios';
+import axios, { getErrorMessage } from '../../api/axios';
 
 const StudentResult = () => {
   const { quizId } = useParams();
   const [resultData, setResultData] = useState(null);
+  const [error, setError] = useState('');
+  const [shareMsg, setShareMsg] = useState('');
 
   useEffect(() => {
     const fetchResult = async () => {
@@ -20,7 +22,7 @@ const StudentResult = () => {
         const res = await axios.get(`/student/result/${quizId}`);
         setResultData(res.data);
       } catch (err) {
-        console.error('Failed to fetch result:', err);
+        setError(getErrorMessage(err, 'Failed to load result'));
       }
     };
 
@@ -41,7 +43,36 @@ const StudentResult = () => {
     return 'bg-red-100';
   };
 
-  if (!resultData) return <div className="p-8">Loading result...</div>;
+  const handleShare = async () => {
+    const text = `I scored ${resultData.score}% (${resultData.correctAnswers}/${resultData.totalQuestions}) on "${resultData.quizTitle}" in QuizAI!`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'My Quiz Result', text });
+      } else {
+        await navigator.clipboard.writeText(text);
+        setShareMsg('Result copied to clipboard!');
+      }
+    } catch {
+      // user cancelled the share dialog
+    }
+  };
+
+  if (!resultData) {
+    return (
+      <StudentLayout>
+        <div className="p-8 text-center">
+          {error ? (
+            <>
+              <p className="text-red-600 mb-4">{error}</p>
+              <Link to="/student/dashboard" className="text-teal-600 hover:underline">Back to Dashboard</Link>
+            </>
+          ) : (
+            <p className="text-gray-500">Loading result...</p>
+          )}
+        </div>
+      </StudentLayout>
+    );
+  }
 
   return (
     <StudentLayout>
@@ -110,7 +141,7 @@ const StudentResult = () => {
 
           {/* Action Buttons */}
           <div className="flex justify-center space-x-4 mb-8">
-            <button className="flex items-center space-x-2 bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors">
+            <button onClick={handleShare} className="flex items-center space-x-2 bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors">
               <Share2 className="h-5 w-5" />
               <span>Share Result</span>
             </button>
@@ -121,6 +152,7 @@ const StudentResult = () => {
               <span>Ask AI for Help</span>
             </Link>
           </div>
+          {shareMsg && <p className="text-center text-green-600 -mt-4 mb-6">{shareMsg}</p>}
 
           {/* Question Breakdown */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -194,6 +226,11 @@ const StudentResult = () => {
                           })}
                         </div>
 
+                        {userAnswer === -1 && (
+                          <p className="text-sm text-gray-500 mb-3">You skipped this question.</p>
+                        )}
+
+                        {question.explanation && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                           <p className="text-sm font-medium text-blue-900 mb-1">
                             Explanation:
@@ -202,6 +239,7 @@ const StudentResult = () => {
                             {question.explanation}
                           </p>
                         </div>
+                        )}
                       </div>
                     </div>
                   </div>

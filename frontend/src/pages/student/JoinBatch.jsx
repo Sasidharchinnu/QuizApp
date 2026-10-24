@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../../api/axios';
+import axios, { getErrorMessage } from '../../api/axios';
 import StudentLayout from '../../components/StudentLayout';
 
 const JoinBatch = () => {
@@ -13,8 +13,7 @@ const JoinBatch = () => {
     try {
       const res = await axios.get('/student/batches');
       setBatches(res.data);
-    } catch (err) {
-      console.error('Failed to fetch batches');
+    } catch {
       setError('Could not load batches. Please try again later.');
     }
   };
@@ -23,8 +22,7 @@ const JoinBatch = () => {
     try {
       const res = await axios.get('/student/profile');
       setJoinedBatches(res.data.batches || []);
-    } catch (err) {
-      console.error('Failed to fetch joined batches');
+    } catch {
       setError('Could not load your joined batches.');
     }
   };
@@ -40,14 +38,16 @@ const JoinBatch = () => {
       setError('');
       const res = await axios.post('/student/join-batch', { batchId: selectedBatch });
       setMessage(res.data.message || 'Successfully joined the batch');
+      setSelectedBatch('');
       fetchProfile(); // Refresh joined batches
     } catch (err) {
       setMessage('');
-      setError(err.response?.data?.message || 'Failed to join batch');
+      setError(getErrorMessage(err, 'Failed to join batch'));
     }
   };
 
   const handleLeave = async (batchId) => {
+    if (!window.confirm('Leave this batch? You will no longer see its quizzes.')) return;
     try {
       setMessage('');
       setError('');
@@ -55,7 +55,7 @@ const JoinBatch = () => {
       setMessage(res.data.message || 'Left the batch successfully');
       fetchProfile(); // Refresh joined batches
     } catch (err) {
-      setError(err.response?.data?.message+"58" || 'Failed to leave the batch');
+      setError(getErrorMessage(err, 'Failed to leave the batch'));
     }
   };
 
@@ -75,11 +75,13 @@ const JoinBatch = () => {
             onChange={(e) => setSelectedBatch(e.target.value)}
           >
             <option value="">Select a Batch</option>
-            {batches.map((batch) => (
-              <option key={batch._id} value={batch._id}>
-                {batch.name}
-              </option>
-            ))}
+            {batches
+              .filter((batch) => !joinedBatches.some((j) => j._id === batch._id))
+              .map((batch) => (
+                <option key={batch._id} value={batch._id}>
+                  {batch.name}{batch.teacher?.name ? ` — ${batch.teacher.name}` : ''}
+                </option>
+              ))}
           </select>
 
           <button

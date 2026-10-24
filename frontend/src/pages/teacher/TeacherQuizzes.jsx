@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../../api/axios'; // axios instance with withCredentials
+import { Link } from 'react-router-dom';
+import axios, { getErrorMessage } from '../../api/axios'; // axios instance with withCredentials
 import TeacherLayout from '../../components/TeacherLayout';
 
 const TeacherQuizzes = () => {
@@ -23,6 +24,16 @@ const TeacherQuizzes = () => {
   fetchQuizzes();
 }, []);
 
+  const handleDelete = async (quiz) => {
+    if (!window.confirm(`Delete "${quiz.title}"? All student results for it will also be deleted.`)) return;
+    try {
+      await axios.delete(`/teacher/quiz/${quiz._id}`);
+      setQuizzes(prev => prev.filter(q => q._id !== quiz._id));
+    } catch (err) {
+      alert(getErrorMessage(err, 'Failed to delete quiz'));
+    }
+  };
+
 
   return (
     <TeacherLayout>
@@ -45,6 +56,8 @@ const TeacherQuizzes = () => {
                   <th className="px-6 py-3 text-left">Deadline</th>
                   <th className="px-6 py-3 text-left">Questions</th>
                   <th className="px-6 py-3 text-left">Source</th>
+                  <th className="px-6 py-3 text-left">Avg. Score</th>
+                  <th className="px-6 py-3 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -59,6 +72,15 @@ const TeacherQuizzes = () => {
                     </td>
                     <td className="px-6 py-4">{quiz.questions?.length || 0}</td>
                     <td className="px-6 py-4 capitalize">{quiz.source}</td>
+                    <td className="px-6 py-4">{quiz.avgScore}%</td>
+                    <td className="px-6 py-4 space-x-3 whitespace-nowrap">
+                      <Link to={`/teacher/leaderboard?quizId=${quiz._id}`} className="text-blue-600 hover:underline text-sm">
+                        Results
+                      </Link>
+                      <button onClick={() => handleDelete(quiz)} className="text-red-600 hover:underline text-sm">
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

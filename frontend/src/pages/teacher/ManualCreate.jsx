@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TeacherLayout from '../../components/TeacherLayout';
 import { Plus, Trash2, Save } from 'lucide-react';
-import axios from '../../api/axios';
+import axios, { getErrorMessage } from '../../api/axios';
 
 const ManualCreate = () => {
   const [quizData, setQuizData] = useState({
@@ -14,12 +14,15 @@ const ManualCreate = () => {
         id: 1,
         question: '',
         options: ['', '', '', ''],
-        correct: 0
+        correct: 0,
+        explanation: ''
       }
     ]
   });
 
   const [batches, setBatches] = useState([]);
+  const [status, setStatus] = useState({ type: '', text: '' });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchBatches = async () => {
@@ -38,7 +41,8 @@ const ManualCreate = () => {
       id: Date.now(),
       question: '',
       options: ['', '', '', ''],
-      correct: 0
+      correct: 0,
+      explanation: ''
     };
     setQuizData({ ...quizData, questions: [...quizData.questions, newQuestion] });
   };
@@ -72,26 +76,29 @@ const ManualCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setStatus({ type: '', text: '' });
+    setSaving(true);
 
     try {
       const formattedQuestions = quizData.questions.map(q => ({
         question: q.question,
         options: q.options,
-        correctAnswer: q.options[q.correct]
+        correctAnswer: q.correct, // index of the correct option
+        explanation: q.explanation
       }));
 
       const payload = {
         title: quizData.title,
         batchId: quizData.batch,
-        deadline: new Date(quizData.deadline),
-        duration: quizData.duration,
-        source: 'manual',
+        deadline: quizData.deadline ? new Date(quizData.deadline).toISOString() : null,
+        duration: Number(quizData.duration),
         questions: formattedQuestions
       };
 
-      const res = await axios.post('/teacher/create-quiz', payload);
+      await axios.post('/teacher/create-quiz', payload);
 
-      alert('✅ Quiz created successfully!');
+      setStatus({ type: 'success', text: `Quiz "${quizData.title}" created successfully!` });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setQuizData({
         title: '',
         batch: '',
@@ -102,13 +109,16 @@ const ManualCreate = () => {
             id: 1,
             question: '',
             options: ['', '', '', ''],
-            correct: 0
+            correct: 0,
+            explanation: ''
           }
         ]
       });
     } catch (err) {
-      console.error('❌ Quiz creation failed:', err);
-      alert('❌ Failed to create quiz');
+      setStatus({ type: 'error', text: getErrorMessage(err, 'Failed to create quiz') });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -119,6 +129,19 @@ const ManualCreate = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Manual Quiz</h1>
           <p className="text-gray-600">Build custom quizzes with your own questions and answers</p>
         </div>
+
+        {status.text && (
+          <div className={`max-w-4xl mx-auto mb-6 p-3 rounded-lg ${
+            status.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-700'
+          }`}>
+            {status.text}
+          </div>
+        )}
+        {batches.length === 0 && (
+          <div className="max-w-4xl mx-auto mb-6 p-3 rounded-lg bg-yellow-50 text-yellow-800">
+            You don't have any batches yet. Create one under "Batches" first.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-8">
           {/* Quiz Details */}
@@ -156,13 +179,12 @@ const ManualCreate = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Deadline (optional)</label>
                 <input
                   type="datetime-local"
                   value={quizData.deadline}
                   onChange={(e) => setQuizData({ ...quizData, deadline: e.target.value })}
                   className="w-full p-3 border border-gray-300 rounded-lg"
-                  required
                 />
               </div>
 
@@ -236,6 +258,14 @@ const ManualCreate = () => {
                     />
                   </div>
                 ))}
+                <p className="text-xs text-gray-500 mb-2">Select the radio button next to the correct answer.</p>
+                <input
+                  type="text"
+                  value={q.explanation}
+                  onChange={(e) => updateQuestion(q.id, 'explanation', e.target.value)}
+                  className="w-full p-3 border border-gray-200 rounded-lg text-sm"
+                  placeholder="Explanation shown to students after submitting (optional)"
+                />
               </div>
             ))}
           </div>
@@ -243,9 +273,10 @@ const ManualCreate = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="flex items-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
+              disabled={saving}
+              className="flex items-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-60"
             >
-              <Save className="h-5 w-5 mr-2" /> Create Quiz
+              <Save className="h-5 w-5 mr-2" /> {saving ? 'Saving...' : 'Create Quiz'}
             </button>
           </div>
         </form>

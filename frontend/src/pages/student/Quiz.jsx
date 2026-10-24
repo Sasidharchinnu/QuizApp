@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, CheckCircle, ChevronRight, ChevronLeft } from 'lucide-react';
-import axios from '../../api/axios';
+import { Clock, CheckCircle, ChevronRight, ChevronLeft, AlertCircle } from 'lucide-react';
+import axios, { getErrorMessage } from '../../api/axios';
 
 const StudentQuiz = () => {
   const { quizId } = useParams();
@@ -13,6 +13,13 @@ const StudentQuiz = () => {
   const [timeLeft, setTimeLeft] = useState(null);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const startedAt = useRef(Date.now());
+  const submittedRef = useRef(false); // guards against double submission (button + timer)
+  const answersRef = useRef(answers);
+  answersRef.current = answers;
 
   // Fetch quiz data
   useEffect(() => {
@@ -22,14 +29,14 @@ const StudentQuiz = () => {
         const quiz = res.data;
 
         setQuizData(quiz);
-
-        // Set timeLeft using duration in seconds or fallback to 30 mins
-        const durationSeconds = quiz.duration ? quiz.duration * 60 : 1800;
-        setTimeLeft(durationSeconds);
-
+        setTimeLeft((quiz.duration || 30) * 60); // duration is in minutes
+        startedAt.current = Date.now();
       } catch (err) {
-        console.error('Failed to fetch quiz:', err);
-        navigate('/student/dashboard');
+        if (err.response?.data?.alreadySubmitted) {
+          navigate(`/student/result/${quizId}`, { replace: true });
+          return;
+        }
+        setError(getErrorMessage(err, 'Failed to load quiz'));
       } finally {
         setLoading(false);
       }
@@ -38,20 +45,49 @@ const StudentQuiz = () => {
     fetchQuiz();
   }, [quizId, navigate]);
 
-  // Timer effect
+  const handleSubmit = useCallback(async () => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    setSubmitting(true);
+
+    const formattedAnswers = Object.entries(answersRef.current).map(([questionIndex, selectedOption]) => ({
+      questionIndex: parseInt(questionIndex),
+      selectedOption
+    }));
+
+    const seconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const timeSpent = `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+
+    try {
+      // The score is calculated on the server
+      await axios.post('/student/submit', { quizId, answers: formattedAnswers, timeSpent });
+      navigate(`/student/result/${quizId}`, { replace: true });
+    } catch (err) {
+      if (err.response?.status === 409) {
+        navigate(`/student/result/${quizId}`, { replace: true });
+        return;
+      }
+      submittedRef.current = false;
+      setSubmitting(false);
+      setShowSubmitConfirm(false);
+      setError(getErrorMessage(err, 'Failed to submit quiz. Please try again.'));
+    }
+  }, [quizId, navigate]);
+
+  // Timer: start one interval once the quiz has loaded
+  const timerStarted = timeLeft !== null;
   useEffect(() => {
-    if (!timeLeft) return;
+    if (!timerStarted) return;
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          handleSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setTimeLeft(prev => Math.max(prev - 1, 0));
     }, 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timerStarted]);
+
+  // Auto-submit when time runs out
+  useEffect(() => {
+    if (timeLeft === 0) handleSubmit();
+  }, [timeLeft, handleSubmit]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -66,38 +102,6 @@ const StudentQuiz = () => {
     }));
   };
 
-  const handleSubmit = async () => {
-  const formattedAnswers = Object.entries(answers).map(([questionIndex, selectedOption]) => ({
-    questionIndex: parseInt(questionIndex),
-    selectedOption
-  }));
-
-  const correctAnswers = quizData.questions.reduce((count, q, idx) => {
-    return count + (answers[idx] === q.correct ? 1 : 0);
-  }, 0);
-
-  const score = Math.round((correctAnswers / quizData.questions.length) * 100);
-  const timeSpent = quizData.duration ? `${quizData.duration} minutes` : 'Unknown';
-
-  try {
-    await axios.post('/student/submit', {
-      quizId,
-      answers: formattedAnswers,
-      score,
-      correctAnswers,
-      timeSpent
-    });
-
-    navigate(`/student/result/${quizId}`);
-  } catch (err) {
-    console.error("Failed to submit quiz:", err.response?.data || err.message);
-  }
-};
-
-
-
-
-
   const nextQuestion = () => {
     if (currentQuestion < quizData.questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
@@ -110,9 +114,23 @@ const StudentQuiz = () => {
     }
   };
 
-  if (loading || !quizData) {
+  if (loading) {
     return (
       <div className="p-6 text-center text-gray-500">Loading quiz...</div>
+    );
+  }
+
+  if (!quizData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow p-8 text-center max-w-md">
+          <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
+          <p className="text-gray-800 font-medium mb-4">{error || 'Quiz not available'}</p>
+          <button onClick={() => navigate('/student/dashboard')} className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700">
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -131,7 +149,7 @@ const StudentQuiz = () => {
             </p>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-red-600">
+            <div className={`flex items-center space-x-2 ${timeLeft <= 60 ? 'text-red-600 animate-pulse' : 'text-gray-700'}`}>
               <Clock className="h-5 w-5" />
               <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
             </div>
@@ -157,6 +175,9 @@ const StudentQuiz = () => {
 
       {/* Question Content */}
       <div className="max-w-4xl mx-auto p-6">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4">{error}</div>
+        )}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
           <div className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6">
@@ -212,7 +233,7 @@ const StudentQuiz = () => {
               <span>Previous</span>
             </button>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap justify-center gap-2 mx-4">
               {quizData.questions.map((_, index) => (
                 <button
                   key={index}
@@ -261,9 +282,10 @@ const StudentQuiz = () => {
               </button>
               <button
                 onClick={handleSubmit}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                disabled={submitting}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-60"
               >
-                Submit
+                {submitting ? 'Submitting...' : 'Submit'}
               </button>
             </div>
           </div>

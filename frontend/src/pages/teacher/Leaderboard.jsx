@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import TeacherLayout from '../../components/TeacherLayout';
 import { Trophy, Download, Filter } from 'lucide-react';
 import axios from '../../api/axios';
 import * as XLSX from 'xlsx'
 
 const TeacherLeaderboard = () => {
-  const [selectedBatch, setSelectedBatch] = useState('');
-  const [selectedQuiz, setSelectedQuiz] = useState('');
+  const [searchParams] = useSearchParams();
+  const [selectedBatch, setSelectedBatch] = useState(searchParams.get('batchId') || '');
+  const [selectedQuiz, setSelectedQuiz] = useState(searchParams.get('quizId') || '');
+  const [loading, setLoading] = useState(true);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [batches, setBatches] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
+      setLoading(true);
       try {
         const params = {};
         if (selectedBatch) params.batchId = selectedBatch;
@@ -24,6 +28,8 @@ const TeacherLeaderboard = () => {
         setQuizzes(res.data.quizOptions || []);
       } catch (err) {
         console.error('Error fetching leaderboard:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -57,6 +63,8 @@ const exportData = () => {
     Rank: student.rank,
     'Student Name': student.name,
     Email: student.email,
+    Quiz: student.quizTitle,
+    'Time Spent': student.timeSpent,
     'Score (%)': student.score,
     'Submitted At': new Date(student.submittedAt).toLocaleString()
   }));
@@ -90,7 +98,7 @@ const exportData = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Select Batch</label>
               <select
                 value={selectedBatch}
-                onChange={(e) => setSelectedBatch(e.target.value)}
+                onChange={(e) => { setSelectedBatch(e.target.value); setSelectedQuiz(''); }}
                 className="w-full p-3 border border-gray-300 rounded-lg"
               >
                 <option value="">All Batches</option>
@@ -128,7 +136,9 @@ const exportData = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Student Leaderboard</h2>
 
-          {leaderboardData.length === 0 ? (
+          {loading ? (
+            <p className="text-gray-500 text-center">Loading...</p>
+          ) : leaderboardData.length === 0 ? (
             <p className="text-gray-500 text-center">No leaderboard data available.</p>
           ) : (
             <div className="overflow-x-auto">
@@ -138,6 +148,7 @@ const exportData = () => {
                     <th className="text-left py-3 px-4 font-medium text-gray-700">Rank</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-700">Student Name</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-700">Email</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-700">Quiz</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-700">Score</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-700">Submitted At</th>
                   </tr>
@@ -145,7 +156,7 @@ const exportData = () => {
                 <tbody>
                   {leaderboardData.map((student) => (
                     <tr
-                      key={student.rank}
+                      key={`${student.studentId}-${student.rank}`}
                       className={`border-b border-gray-100 hover:bg-gray-50 ${
                         student.rank <= 3 ? 'bg-gradient-to-r from-yellow-50 to-orange-50' : ''
                       }`}
@@ -153,18 +164,21 @@ const exportData = () => {
                       <td className="py-3 px-4">
                         <div className="flex items-center space-x-2">
                           {getRankIcon(student.rank)}
-                          <span className="font-medium">{student.rank}</span>
+                          {student.rank <= 3 && <span className="font-medium">{student.rank}</span>}
                         </div>
                       </td>
                       <td className="py-3 px-4 font-medium text-gray-900">{student.name}</td>
                       <td className="py-3 px-4 text-gray-600">{student.email}</td>
+                      <td className="py-3 px-4 text-gray-600">{student.quizTitle}</td>
                       <td className="py-3 px-4">
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                           student.score >= 90
                             ? 'bg-green-100 text-green-800'
-                            : student.score >= 80
+                            : student.score >= 70
                             ? 'bg-blue-100 text-blue-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                            : student.score >= 50
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
                         }`}>
                           {student.score}%
                         </span>

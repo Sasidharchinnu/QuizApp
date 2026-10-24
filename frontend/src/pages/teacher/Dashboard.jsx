@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 import TeacherLayout from '../../components/TeacherLayout';
 import {
   BookOpen,
@@ -15,29 +14,24 @@ import {
 import axios from '../../api/axios';
 
 const Dashboard = () => {
-  const { token } = useAuth();
-  const navigate = useNavigate();
-
   const [teacherName, setTeacherName] = useState('Teacher');
   const [stats, setStats] = useState([]);
   const [recentQuizzes, setRecentQuizzes] = useState([]);
 
   useEffect(() => {
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
     const fetchData = async () => {
       try {
-        const profileRes = await axios.get('/teacher/profile'); // token sent via cookie
-        const dashboardRes = await axios.get('/teacher/dashboard');
+        // token is sent automatically via the httpOnly cookie
+        const [profileRes, dashboardRes] = await Promise.all([
+          axios.get('/teacher/profile'),
+          axios.get('/teacher/dashboard'),
+        ]);
 
         const name = profileRes.data?.name || 'Teacher';
         const metrics = dashboardRes.data?.metrics || {
-          totalQuizzes: 10,
+          totalQuizzes: 0,
           activeStudents: 0,
-          avgScore: 50,
+          avgScore: 0,
           totalBatches: 0
         };
         const quizzes = dashboardRes.data?.quizzes || [];
@@ -64,7 +58,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, [token, navigate]);
+  }, []);
 
   return (
     <TeacherLayout>
@@ -165,7 +159,7 @@ const Dashboard = () => {
                 <tr className="border-b border-gray-200">
                   <th className="text-left py-3 px-4 font-medium text-gray-700">Quiz Title</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-700">Batch</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Students</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Submissions</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-700">Avg. Score</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-700">Action</th>
                 </tr>
@@ -182,7 +176,7 @@ const Dashboard = () => {
                     <tr key={quiz._id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4 font-medium text-gray-900">{quiz.title}</td>
                       <td className="py-3 px-4 text-gray-600">{quiz.batch}</td>
-                      <td className="py-3 px-4 text-gray-600">{quiz.students}</td>
+                      <td className="py-3 px-4 text-gray-600">{quiz.submissions} / {quiz.students}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           quiz.avgScore >= 80
@@ -193,9 +187,12 @@ const Dashboard = () => {
                         </span>
                       </td>
                       <td className="py-3 px-4">
-                        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                          View Details
-                        </button>
+                        <Link
+                          to={`/teacher/leaderboard?quizId=${quiz._id}`}
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          View Results
+                        </Link>
                       </td>
                     </tr>
                   ))

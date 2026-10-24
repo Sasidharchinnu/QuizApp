@@ -1,36 +1,35 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Brain, Mail, Lock, ArrowRight } from 'lucide-react';
-import axios from '../../api/axios'; // 🔁 your axios instance
+import axios, { getErrorMessage } from '../../api/axios';
 import { useAuth } from '../../context/AuthContext'; // ✅ Auth context
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); // use login function from AuthContext
+  const { user: currentUser, login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSubmitting(true);
     try {
-      const res = await axios.post('/auth/login', formData, {
-        withCredentials: true, // ✅ to accept HTTP-only cookie
-      });
-
+      // The backend sets an httpOnly cookie with the JWT
+      const res = await axios.post('/auth/login', formData);
       const user = res.data.user;
-
-      // ✅ Update context (optional if you track user)
-      login(user.token); // you can pass any state, like `user` or just flag
-
-      // ✅ Redirect based on role
-      if (user.role === 'teacher') {
-        navigate('/teacher/dashboard');
-      } else {
-        navigate('/student/dashboard');
-      }
+      login(user);
+      navigate(`/${user.role}/dashboard`);
     } catch (err) {
-      alert(err?.response?.data?.msg || 'Login failed. Please try again.');
+      setError(getErrorMessage(err, 'Login failed. Please try again.'));
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  // Already logged in → go straight to the dashboard
+  if (currentUser) return <Navigate to={`/${currentUser.role}/dashboard`} replace />;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -51,6 +50,7 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && <p className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">{error}</p>}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <div className="relative">
@@ -83,24 +83,12 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-              </label>
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-500 transition-colors">
-                Forgot password?
-              </a>
-            </div>
-
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
+              disabled={submitting}
+              className="w-full disabled:opacity-60 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
             >
-              <span>Sign In</span>
+              <span>{submitting ? 'Signing in...' : 'Sign In'}</span>
               <ArrowRight className="h-5 w-5" />
             </button>
           </form>

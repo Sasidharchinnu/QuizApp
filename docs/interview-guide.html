@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QuizAI Interview Guide</title>
+<style>
+  :root {
+    --bg: #f7f8fb; --surface: #ffffff; --surface-2: #f1f4f9; --text: #1b2333; --muted: #5b6577;
+    --border: #e2e7ef; --accent: #2563eb; --accent-soft: #e8efff; --teal: #0d9488; --teal-soft: #e0f5f2;
+    --amber-soft: #fff6e0; --amber: #a36100; --code: #eef1f6; --red-soft: #fdecec; --red: #b42318;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f131a; --surface: #161b24; --surface-2: #1c2330; --text: #e6e9ef; --muted: #9aa4b5;
+      --border: #2a3242; --accent: #7aa2ff; --accent-soft: #1d2a47; --teal: #4fd1c1; --teal-soft: #13302d;
+      --amber-soft: #2e2512; --amber: #f2c063; --code: #1f2633; --red-soft: #3a1a1a; --red: #ff8a80;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f131a; --surface: #161b24; --surface-2: #1c2330; --text: #e6e9ef; --muted: #9aa4b5;
+    --border: #2a3242; --accent: #7aa2ff; --accent-soft: #1d2a47; --teal: #4fd1c1; --teal-soft: #13302d;
+    --amber-soft: #2e2512; --amber: #f2c063; --code: #1f2633; --red-soft: #3a1a1a; --red: #ff8a80;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
+  header.hero { padding: 56px 0 24px; }
+  .eyebrow { color: var(--accent); font-weight: 600; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; }
+  h1 { font-size: clamp(30px, 5vw, 42px); line-height: 1.15; margin: 8px 0 12px; }
+  h2 { font-size: 26px; margin: 56px 0 8px; }
+  h2 + p.sub { color: var(--muted); margin: 0 0 18px; }
+  h3 { font-size: 18px; margin: 0 0 6px; }
+  p.lead { font-size: 19px; color: var(--muted); max-width: 720px; margin: 0; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 0; }
+  nav.toc a { text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); padding: 6px 12px; border-radius: 999px; font-size: 14px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .card p { margin: 0 0 10px; } .card p:last-child { margin-bottom: 0; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .script { border-left: 4px solid var(--accent); }
+  .script p { font-size: 17px; }
+  .label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); margin-bottom: 8px; display: block; }
+  .tip { background: var(--amber-soft); border-left: 4px solid var(--amber); padding: 12px 16px; border-radius: 8px; margin: 16px 0; }
+  code { background: var(--code); padding: 1px 6px; border-radius: 6px; font-size: 14px; }
+  pre { background: var(--code); padding: 14px 16px; border-radius: 12px; overflow-x: auto; font-size: 14px; line-height: 1.5; margin: 10px 0 0; }
+  pre code { background: none; padding: 0; }
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 4px; }
+  .flow span { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; font-size: 14px; }
+  .flow i { color: var(--muted); font-style: normal; }
+  .decision h3 { display: flex; gap: 8px; align-items: baseline; }
+  .decision .why { color: var(--muted); }
+  .star { display: grid; grid-template-columns: 90px 1fr; gap: 6px 14px; }
+  .star b { color: var(--teal); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; padding-top: 2px; }
+  @media (max-width: 560px) { .star { grid-template-columns: 1fr; } .star b { padding-top: 8px; } }
+  .bug { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 10px; background: var(--surface); }
+  .bug > div { padding: 12px 16px; font-size: 15px; }
+  .bug .before { background: var(--red-soft); }
+  .bug .before::before { content: "Problem"; display: block; font-size: 12px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: .04em; }
+  .bug .after::before { content: "Fix"; display: block; font-size: 12px; font-weight: 700; color: var(--teal); text-transform: uppercase; letter-spacing: .04em; }
+  @media (max-width: 640px) { .bug { grid-template-columns: 1fr; } }
+  .search { width: 100%; padding: 12px 14px; font-size: 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); margin-bottom: 8px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .filters button { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 5px 12px; font-size: 14px; cursor: pointer; }
+  .filters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  details.qa { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; }
+  details.qa summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+  details.qa summary::-webkit-details-marker { display: none; }
+  details.qa summary::before { content: "+"; color: var(--accent); font-weight: 700; width: 12px; flex-shrink: 0; }
+  details.qa[open] summary::before { content: "–"; }
+  details.qa .tag { margin-left: auto; font-size: 11px; font-weight: 600; color: var(--muted); background: var(--surface-2); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+  details.qa .ans { margin: 10px 0 0 22px; color: var(--text); }
+  details.qa .ans p { margin: 0 0 8px; }
+  #noResults { color: var(--muted); display: none; }
+  ul.tight { margin: 0; padding-left: 20px; } ul.tight li { margin-bottom: 4px; }
+  footer { margin-top: 64px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--border); padding-top: 20px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Interview guide</div>
+  <h1>How to explain QuizAI in an interview</h1>
+  <p class="lead">Ready-to-say scripts, the architecture in plain words, the design decisions worth defending, real bugs you fixed (great for "tell me about a challenge"), and the questions interviewers are likely to ask, with answers.</p>
+  <nav class="toc">
+    <a href="#pitch">30-second pitch</a><a href="#walkthrough">2-minute walkthrough</a><a href="#flows">Request flows</a>
+    <a href="#decisions">Design decisions</a><a href="#challenges">Challenges</a><a href="#next">Improvements</a><a href="#qa">Q&amp;A</a>
+  </nav>
+</header>
+
+<section id="pitch">
+  <h2>The 30-second pitch</h2>
+  <p class="sub">Use this for "Tell me about a project you've built."</p>
+  <div class="card script">
+    <span class="label">Say this</span>
+    <p>"I built <b>QuizAI</b>, a full-stack MERN quiz platform for teachers and students. Teachers organise students into batches and create quizzes either manually or by <b>uploading a PDF that Google Gemini turns into multiple-choice questions</b>, which they review before publishing. Students take <b>timed quizzes</b> that are <b>scored on the server</b>, see explanations for every answer, and can chat with an <b>AI tutor</b>. I used JWT auth in httpOnly cookies with role-based access, MongoDB for storage, Redis caching for dashboards and leaderboards, Swagger for API docs, and Docker to run the whole stack."</p>
+  </div>
+</section>
+
+<section id="walkthrough">
+  <h2>The 2-minute walkthrough</h2>
+  <p class="sub">Use this when they say "walk me through it". Follow this order: problem → users → architecture → one interesting detail → result.</p>
+  <div class="grid">
+    <div class="card"><span class="label">1 · Problem</span><p>Writing quizzes and grading them takes teachers a lot of time, and students usually get a score without understanding their mistakes.</p></div>
+    <div class="card"><span class="label">2 · Users &amp; features</span><p>Two roles. <b>Teachers</b> create batches, create quizzes manually or with AI, and watch a dashboard and leaderboard with Excel export. <b>Students</b> join batches, take timed quizzes, review results and ask the AI tutor.</p></div>
+    <div class="card"><span class="label">3 · Architecture</span><p>A React + Vite SPA calls an Express REST API. Data is in MongoDB through Mongoose: Users, Batches, Quizzes with embedded questions, and Results. Redis caches read-heavy endpoints. Gemini does the AI work.</p></div>
+    <div class="card"><span class="label">4 · Interesting detail</span><p>Pick one: the PDF → Gemini JSON-mode pipeline with validation, server-side scoring with a unique index to prevent double submission, or cache invalidation with key patterns.</p></div>
+    <div class="card"><span class="label">5 · Quality</span><p>Role-protected routes on both client and server, answers never sent to students, Swagger docs, Docker Compose, and an end-to-end test of the main flows.</p></div>
+    <div class="card"><span class="label">6 · What I learned</span><p>Designing APIs around who should see which data, the cookie and CORS rules for cross-site auth, and treating AI output as untrusted input.</p></div>
+  </div>
+  <div class="tip"><b>Tip:</b> Stop after 2 minutes and let them pick what to dig into. Don't quote performance numbers you haven't measured. If asked, explain <i>how</i> you would measure, for example timing an endpoint with and without the cache.</div>
+</section>
+
+<section id="flows">
+  <h2>Key request flows</h2>
+  <p class="sub">Interviewers love "what happens when…" questions. Know these three.</p>
+
+  <div class="card" style="margin-bottom:16px">
+    <h3>1. Login and staying logged in</h3>
+    <div class="flow"><span>POST /api/auth/login</span><i>→</i><span>bcrypt.compare</span><i>→</i><span>jwt.sign({userId, role}, 1d)</span><i>→</i><span>Set-Cookie: token (httpOnly)</span></div>
+    <p>On every page load, <code>AuthContext</code> calls <code>GET /api/auth/check</code>. The <code>verifyToken</code> middleware validates the cookie and the API returns the user and role. <code>ProtectedRoute</code> then lets the user in or redirects to <code>/login</code> or to the user's own dashboard.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <h3>2. AI quiz generation</h3>
+    <div class="flow"><span>Upload PDF</span><i>→</i><span>Multer (memory, 10 MB, PDF only)</span><i>→</i><span>pdf-parse → text</span><i>→</i><span>Gemini JSON mode</span><i>→</i><span>JSON.parse + validate</span><i>→</i><span>Editable preview</span><i>→</i><span>POST /publish-quiz</span></div>
+    <p>The prompt asks for exactly N questions with 4 options, a 0-based <code>correct</code> index and an explanation. The server drops malformed questions, and nothing is saved until the teacher publishes. Publishing checks that the batch belongs to that teacher.</p>
+  </div>
+
+  <div class="card">
+    <h3>3. Taking and submitting a quiz</h3>
+    <div class="flow"><span>GET /student/quiz/:id</span><i>→</i><span>member? not submitted? before deadline?</span><i>→</i><span>questions without answers</span><i>→</i><span>timer</span><i>→</i><span>POST /student/submit</span><i>→</i><span>score on server</span><i>→</i><span>Result (unique quiz+student)</span><i>→</i><span>invalidate caches</span></div>
+    <p>The client sends only <code>{questionIndex, selectedOption}</code> pairs and the time spent. The server recalculates the score, updates the quiz's average with an aggregation, and deletes the affected cache keys: student results, the student's batch list, and the teacher's leaderboard (<code>leaderboard:&lt;teacherId&gt;:*</code>).</p>
+  </div>
+</section>
+
+<section id="decisions">
+  <h2>Design decisions you can defend</h2>
+  <p class="sub">For each one, say <i>what</i> you chose, <i>why</i>, and the <i>trade-off</i>.</p>
+  <div class="grid">
+    <div class="card decision"><h3>JWT in an httpOnly cookie</h3><p class="why">JavaScript can't read it, so an XSS bug can't steal the token. Over HTTPS it's <code>SameSite=None; Secure</code> (frontend and backend are on different domains), and over local HTTP it's <code>Lax</code>. Trade-off: cross-site cookies need careful CORS (<code>credentials: true</code> plus an explicit origin list) and CSRF awareness.</p></div>
+    <div class="card decision"><h3>Score on the server</h3><p class="why">Never trust the client. If the browser sent a score, anyone could post 100%. Correct answers are stripped from every student-facing response until after submission.</p></div>
+    <div class="card decision"><h3>Embed questions in the quiz</h3><p class="why">A quiz and its questions are always read together and are bounded in size, so embedding means one read and no joins. Results are a separate collection because there are many per quiz and they grow without limit.</p></div>
+    <div class="card decision"><h3>Unique index (quiz, student)</h3><p class="why">An application-level "already submitted?" check has a race condition when two requests arrive together. The database index guarantees a single attempt, and the duplicate-key error (11000) is turned into a 409.</p></div>
+    <div class="card decision"><h3>Cache-aside with targeted invalidation</h3><p class="why">Read the cache, fall back to MongoDB, and store with a TTL. Writes delete exactly the affected keys or patterns. TTLs are a safety net. Redis is optional, and the app falls back to an in-memory cache so local setup stays simple.</p></div>
+    <div class="card decision"><h3>Human in the loop for AI</h3><p class="why">LLMs can be wrong. JSON mode plus server validation handles format errors, and the editable preview handles content errors. The teacher stays accountable for what's published.</p></div>
+    <div class="card decision"><h3>Role checks on both sides</h3><p class="why"><code>ProtectedRoute</code> on the client is for UX only. Real security is <code>verifyToken</code> + <code>requireRole</code> applied to every route of the student and teacher routers.</p></div>
+    <div class="card decision"><h3>Swagger from JSDoc</h3><p class="why">The docs live next to the routes, so they stay in sync. They're also handy for demos and for frontend work in parallel.</p></div>
+  </div>
+</section>
+
+<section id="challenges">
+  <h2>Challenges and bugs I fixed</h2>
+  <p class="sub">Real problems from this codebase. Use one as a STAR answer to "Tell me about a difficult bug."</p>
+
+  <div class="card" style="margin-bottom:18px">
+    <span class="label">STAR example: "users got logged out on every refresh"</span>
+    <div class="star">
+      <b>Situation</b><div>After login everything worked, but refreshing any page sent the user back to the login screen. Registering didn't log you in either.</div>
+      <b>Task</b><div>Find out why the session wasn't restored even though the cookie was valid.</div>
+      <b>Action</b><div>I traced the startup flow. The frontend checked <code>res.data.success</code>, but the API returned <code>{valid: true}</code>, so it always treated the user as logged out. Register also never set the cookie. I made <code>/auth/check</code> return the user and role, stored the user in <code>AuthContext</code>, added a role-aware <code>ProtectedRoute</code>, and issued the cookie on register too.</div>
+      <b>Result</b><div>Sessions survive refreshes, users land on the right dashboard for their role, and I added an automated browser test covering register → refresh → still logged in.</div>
+    </div>
+  </div>
+
+  <div class="bug"><div class="before">Student-facing endpoints returned full question objects, including <code>correctAnswer</code>, visible in DevTools.</div><div class="after">Return only <code>questionCount</code> in lists. The quiz endpoint returns only question text and options.</div></div>
+  <div class="bug"><div class="before">The app crashed at startup if one hardcoded Redis Cloud server was unreachable, and its password was committed in the code.</div><div class="after">Moved to a <code>REDIS_URL</code> env var with a limited reconnect strategy and an automatic in-memory fallback. The leaked password needs rotating.</div></div>
+  <div class="bug"><div class="before"><code>client.del('leaderboard:id:*')</code> doesn't support wildcards, so leaderboards stayed stale.</div><div class="after">Added <code>delPattern()</code>: find the keys matching the pattern, then delete them.</div></div>
+  <div class="bug"><div class="before">"Generate quiz from PDF" returned the same 3 hardcoded questions, and the upload route had no auth.</div><div class="after">Real pipeline: pdf-parse → Gemini JSON mode → validation → editable preview. The route requires a teacher login.</div></div>
+  <div class="bug"><div class="before">Quiz timer recreated its interval every second and called submit inside a state updater, which risked double submission.</div><div class="after">One interval, a separate effect submits at 0, and a ref guard plus the DB unique index stop duplicates. Real time spent is recorded.</div></div>
+  <div class="bug"><div class="before">Picking a leaderboard filter emptied the other dropdown, because the API returned no options when a filter was applied.</div><div class="after">The API always returns all of the teacher's batches, plus that batch's quizzes.</div></div>
+  <div class="bug"><div class="before">Quizzes with no deadline never appeared in "Active Quizzes" (<code>deadline &gt;= now</code> excludes <code>null</code>).</div><div class="after">Query <code>$or: [{deadline: null}, {deadline: {$gte: now}}]</code>.</div></div>
+  <div class="bug"><div class="before">Docker build failed (<code>"my-quiz-app": "file:.."</code> dependency) and nginx stripped the <code>/api</code> prefix.</div><div class="after">Removed the bogus dependency, fixed the proxy path, and served the build with nginx.</div></div>
+</section>
+
+<section id="next">
+  <h2>What I'd improve next</h2>
+  <p class="sub">Always have an answer to "What would you do with more time?"</p>
+  <div class="card">
+    <ul class="tight">
+      <li><b>Tests in CI:</b> Jest + Supertest for the API, Playwright for the UI, running on every push.</li>
+      <li><b>Security hardening:</b> rate limiting on login and AI endpoints (express-rate-limit), helmet, input validation with zod or express-validator, CSRF tokens for the cross-site cookie setup.</li>
+      <li><b>Server-side timer:</b> store <code>startedAt</code> when a quiz is opened, so a student can't extend time by reloading.</li>
+      <li><b>Question bank and randomisation:</b> shuffle questions and options per student to reduce copying.</li>
+      <li><b>Scale:</b> paginate leaderboards, use <code>SCAN</code> instead of <code>KEYS</code> for invalidation, and stream large PDFs or chunk long documents for the LLM.</li>
+      <li><b>Features:</b> password reset by email, editing quizzes after publishing, per-question analytics for teachers, and an AI tutor that knows which question the student got wrong.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="qa">
+  <h2>Likely interview questions and answers</h2>
+  <p class="sub">Search or filter by topic. Click a question to reveal the answer. Practise saying the answers aloud in your own words.</p>
+  <input id="q" class="search" type="search" placeholder="Search questions, e.g. cookie, index, Redis…" aria-label="Search questions">
+  <div class="filters" id="filters">
+    <button data-f="all" aria-pressed="true">All</button>
+    <button data-f="project" aria-pressed="false">Project</button>
+    <button data-f="react" aria-pressed="false">React</button>
+    <button data-f="node" aria-pressed="false">Node / Express</button>
+    <button data-f="db" aria-pressed="false">MongoDB</button>
+    <button data-f="security" aria-pressed="false">Auth &amp; Security</button>
+    <button data-f="cache" aria-pressed="false">Redis</button>
+    <button data-f="ai" aria-pressed="false">AI</button>
+    <button data-f="devops" aria-pressed="false">DevOps</button>
+  </div>
+  <p id="noResults">No questions match.</p>
+  <div id="qaList">
+
+  <details class="qa" data-t="project"><summary>Why did you build this project?<span class="tag">Project</span></summary><div class="ans"><p>To solve a real classroom problem: writing and grading quizzes takes teachers a lot of time. It also let me practise a complete production-style stack: auth with roles, a relational-style data model in MongoDB, caching, file uploads, LLM integration, API docs and Docker.</p></div></details>
+
+  <details class="qa" data-t="project"><summary>What was the hardest part?<span class="tag">Project</span></summary><div class="ans"><p>Making the AI output reliable. LLMs sometimes return extra text, wrong indexes or fewer options. I used Gemini's JSON response mode, a strict prompt with an exact schema, server-side validation that drops malformed questions, and a human review step before saving. A close second was the cross-site cookie auth between two Render domains.</p></div></details>
+
+  <details class="qa" data-t="project"><summary>How do teachers and students see different things?<span class="tag">Project</span></summary><div class="ans"><p>The JWT carries the user's <code>role</code>. On the server, the student router uses <code>verifyToken, requireRole('student')</code> and the teacher router uses <code>requireRole('teacher')</code>, so every endpoint is protected. On the client, <code>ProtectedRoute</code> sends users to their own dashboard. The server checks are the real security; the client checks are only for UX.</p></div></details>
+
+  <details class="qa" data-t="project"><summary>How do you stop a student from cheating?<span class="tag">Project</span></summary><div class="ans"><p>Correct answers are never sent before submission. Scoring happens on the server. A unique index allows only one attempt per quiz, and the server checks batch membership and the deadline. To go further, I'd add a server-side timer (store <code>startedAt</code>), randomise question and option order per student, and log tab switches.</p></div></details>
+
+  <details class="qa" data-t="react"><summary>How is authentication state handled in React?<span class="tag">React</span></summary><div class="ans"><p>An <code>AuthContext</code> provider wraps the app. On mount it calls <code>/auth/check</code> and stores <code>user</code> (or <code>null</code>), and it shows a loader until that finishes so routes don't flash. <code>login()</code> and <code>logout()</code> update the context. The token itself is never in JavaScript because it's an httpOnly cookie; Axios sends it automatically with <code>withCredentials: true</code>.</p></div></details>
+
+  <details class="qa" data-t="react"><summary>How does the quiz timer work, and how do you avoid double submission?<span class="tag">React</span></summary><div class="ans"><p>When the quiz loads I start a single <code>setInterval</code> that decrements <code>timeLeft</code>. A separate <code>useEffect</code> watches <code>timeLeft === 0</code> and calls <code>handleSubmit</code>. Submit uses a <code>useRef</code> flag so the button and the timer can't both fire, and it reads the answers from a ref to avoid stale closures. The database unique index is the final guarantee.</p></div></details>
+
+  <details class="qa" data-t="react"><summary>Why Context instead of Redux?<span class="tag">React</span></summary><div class="ans"><p>The only truly global state is the logged-in user. Everything else is page-level server data fetched with Axios. Context is enough and avoids boilerplate. If the app grew, I'd add React Query or TanStack Query for server-state caching rather than Redux.</p></div></details>
+
+  <details class="qa" data-t="react"><summary>What does useMemo do on the student dashboard?<span class="tag">React</span></summary><div class="ans"><p>It derives the stats (completed count, active count, average score) from the quizzes-by-batch data and only recalculates when that data changes, not on every render.</p></div></details>
+
+  <details class="qa" data-t="node"><summary>Explain the Express middleware chain for a protected request.<span class="tag">Node / Express</span></summary><div class="ans"><p><code>express.json()</code> parses the body, then <code>cookieParser()</code> exposes <code>req.cookies</code>, then <code>cors()</code> sets the headers. On the router, <code>verifyToken</code> verifies the JWT and sets <code>req.user</code>, <code>requireRole</code> checks the role, and <code>validateIds</code> rejects bad ObjectIds with a 400 before the controller runs. A final error handler turns errors such as Multer's into JSON responses.</p></div></details>
+
+  <details class="qa" data-t="node"><summary>How are file uploads handled?<span class="tag">Node / Express</span></summary><div class="ans"><p>Multer with <code>memoryStorage</code>, because the file only needs to be parsed, not stored. Limits are 10&nbsp;MB and a <code>fileFilter</code> that accepts only <code>application/pdf</code>. The buffer goes to <code>pdf-parse</code>. If very little text comes out (a scanned PDF), I return a 422 with a helpful message.</p></div></details>
+
+  <details class="qa" data-t="node"><summary>Which HTTP status codes do you use and why?<span class="tag">Node / Express</span></summary><div class="ans"><p>201 for creation, 400 for invalid input, 401 for a missing or invalid token, 403 for wrong role or not a batch member, 404 for not found, 409 for conflicts (duplicate email, already submitted), 422 for an unreadable PDF, 502 when Gemini fails, and 503 when the AI key isn't configured. Accurate codes let the frontend react correctly, for example redirecting to the result page on a 409.</p></div></details>
+
+  <details class="qa" data-t="node"><summary>How did you document the API?<span class="tag">Node / Express</span></summary><div class="ans"><p>With swagger-jsdoc: OpenAPI comments sit above each route, and swagger-ui-express serves them at <code>/api-docs</code>. Cookie auth is declared as a security scheme.</p></div></details>
+
+  <details class="qa" data-t="db"><summary>Describe your MongoDB schema.<span class="tag">MongoDB</span></summary><div class="ans"><p>Four collections. <b>User</b> (unique email, role, batch refs). <b>Batch</b> (teacher ref, student refs, so it's many-to-many with users). <b>Quiz</b> (batch and creator refs, with embedded questions: text, options, correct index, explanation). <b>Result</b> (quiz and student refs, score, answers). Questions are embedded because they're always read with their quiz and are bounded. Results are referenced because they grow without limit.</p></div></details>
+
+  <details class="qa" data-t="db"><summary>Which indexes did you add and why?<span class="tag">MongoDB</span></summary><div class="ans"><p>On Result: <code>{quiz, student}</code> unique (one attempt, plus fast lookups) and <code>{student, completedAt: -1}</code> for "my results". On Quiz: <code>{createdBy, createdAt: -1}</code> for the teacher's list and <code>{batch, deadline}</code> for student batch views. On Batch: <code>{students}</code> for membership queries. User has a unique index on email.</p></div></details>
+
+  <details class="qa" data-t="db"><summary>Why keep batch membership on both User and Batch?<span class="tag">MongoDB</span></summary><div class="ans"><p>It's denormalised for fast reads in both directions: a student's batches for the dashboard, a batch's students for the teacher. To keep the two in sync I use <code>$addToSet</code> and <code>$pull</code> updates on both documents. In a bigger system I'd wrap the two updates in a transaction.</p></div></details>
+
+  <details class="qa" data-t="db"><summary>How do you calculate the average score of a quiz?<span class="tag">MongoDB</span></summary><div class="ans"><p>After each submission, an aggregation (<code>$match</code> on the quiz, then <code>$group</code> with <code>$avg</code>) recalculates it, and it's stored on the quiz as <code>avgScore</code> so dashboards don't need to aggregate on every read.</p></div></details>
+
+  <details class="qa" data-t="db"><summary>What's the N+1 query problem? Did you hit it?<span class="tag">MongoDB</span></summary><div class="ans"><p>It means running one query per item in a list. The batch-quizzes endpoint originally ran one <code>Result.findOne</code> per quiz. I replaced it with a single <code>Result.find({quiz: {$in: ids}})</code> and a Map lookup.</p></div></details>
+
+  <details class="qa" data-t="security"><summary>Why httpOnly cookies instead of localStorage?<span class="tag">Auth &amp; Security</span></summary><div class="ans"><p>Anything in localStorage can be read by injected scripts (XSS). An httpOnly cookie can't be read by JavaScript and is sent automatically. The trade-off is CSRF risk, which is reduced by SameSite, a strict CORS origin list and JSON-only endpoints. CSRF tokens would be the next step.</p></div></details>
+
+  <details class="qa" data-t="security"><summary>Explain SameSite and why it changes between local and production.<span class="tag">Auth &amp; Security</span></summary><div class="ans"><p>In production the frontend and API are on different sites (two onrender.com subdomains, and onrender.com is a public suffix), so the browser only sends the cookie with <code>SameSite=None</code>, and that requires <code>Secure</code> (HTTPS). Locally, <code>localhost:5173</code> and <code>localhost:5000</code> are the same site over HTTP, so <code>Lax</code> without Secure is used. The server picks automatically using <code>req.secure</code> with <code>trust proxy</code> enabled.</p></div></details>
+
+  <details class="qa" data-t="security"><summary>How are passwords stored?<span class="tag">Auth &amp; Security</span></summary><div class="ans"><p>Hashed with bcrypt at cost factor 10. bcrypt adds a random salt and is deliberately slow, which makes brute-forcing hard. Login returns the same "Invalid email or password" for both cases, so attackers can't find out which emails are registered.</p></div></details>
+
+  <details class="qa" data-t="security"><summary>What is CORS and how did you configure it?<span class="tag">Auth &amp; Security</span></summary><div class="ans"><p>Browsers block cross-origin requests unless the server allows them. I use the <code>cors</code> package with an explicit list of allowed origins (extendable with <code>CLIENT_URLS</code>) and <code>credentials: true</code>. A wildcard <code>*</code> isn't allowed when credentials are used.</p></div></details>
+
+  <details class="qa" data-t="security"><summary>Did you find any security issues in your own code?<span class="tag">Auth &amp; Security</span></summary><div class="ans"><p>Yes. A Redis password was hardcoded in the repo (moved to env; it should be rotated), the PDF upload route had no auth, the AI endpoint was public (cost risk), and student endpoints leaked correct answers. All are fixed. It taught me to review what each endpoint returns from the point of view of who calls it.</p></div></details>
+
+  <details class="qa" data-t="cache"><summary>Why Redis, and what do you cache?<span class="tag">Redis</span></summary><div class="ans"><p>These endpoints are read far more often than they change: the batch list, a teacher's quizzes, a student's batch quizzes, results and leaderboards. Each key has a TTL (5 minutes to 1 hour), for example <code>leaderboard:&lt;teacherId&gt;:&lt;batch&gt;:&lt;quiz&gt;</code>.</p></div></details>
+
+  <details class="qa" data-t="cache"><summary>How do you keep the cache consistent?<span class="tag">Redis</span></summary><div class="ans"><p>Cache-aside with invalidation on write. Creating a quiz deletes <code>teacherQuizzes:&lt;id&gt;</code> and <code>student:*:batch:&lt;batchId&gt;:quizzes</code>. Submitting deletes the student's results and that teacher's leaderboard keys. The TTL is a fallback in case a deletion is missed.</p></div></details>
+
+  <details class="qa" data-t="cache"><summary>What happens if Redis goes down?<span class="tag">Redis</span></summary><div class="ans"><p>The cache wrapper checks <code>isReady</code>. If Redis isn't available or a command fails, it uses an in-memory Map with TTLs, so the app degrades gracefully instead of crashing. With several server instances the memory caches would differ, which is why Redis is used in production.</p></div></details>
+
+  <details class="qa" data-t="cache"><summary>Is using KEYS for pattern deletion OK?<span class="tag">Redis</span></summary><div class="ans"><p>It's fine at this scale, but <code>KEYS</code> blocks Redis while it scans every key. In production I'd use <code>SCAN</code> iteratively, or track keys in a Redis Set per batch or teacher so invalidation is a direct lookup.</p></div></details>
+
+  <details class="qa" data-t="ai"><summary>How do you get structured output from Gemini?<span class="tag">AI</span></summary><div class="ans"><p>I set <code>generationConfig.responseMimeType = "application/json"</code> and include an exact JSON example in the prompt. Then I strip any code fences, <code>JSON.parse</code> it, and validate every question (text present, at least 2 non-empty options, an in-range integer <code>correct</code>). Invalid ones are dropped. If none are left, the API returns 502 so the user can retry.</p></div></details>
+
+  <details class="qa" data-t="ai"><summary>What about long PDFs and token limits?<span class="tag">AI</span></summary><div class="ans"><p>The extracted text is collapsed and capped at about 30k characters before it's sent. For full books I'd chunk the document, generate questions per chunk, then sample and deduplicate.</p></div></details>
+
+  <details class="qa" data-t="ai"><summary>How do you handle hallucinations or wrong answers?<span class="tag">AI</span></summary><div class="ans"><p>The prompt tells the model to use only the provided material, and a teacher reviews and edits every question (including which option is correct) before publishing. AI drafts, and a human approves.</p></div></details>
+
+  <details class="qa" data-t="ai"><summary>How do you protect the API key and control cost?<span class="tag">AI</span></summary><div class="ans"><p>The key lives only on the server (env var, sent in the <code>x-goog-api-key</code> header), never in the frontend. AI endpoints require a logged-in user with the right role, and questions are limited to 2000 characters. Next I'd add per-user rate limits.</p></div></details>
+
+  <details class="qa" data-t="devops"><summary>How is the project deployed and run?<span class="tag">DevOps</span></summary><div class="ans"><p>The frontend and backend run as separate services on Render, with MongoDB Atlas and Redis Cloud. Locally, <code>docker compose up</code> starts the backend, MongoDB and Redis, plus an nginx container that serves the React build and proxies <code>/api</code> to the backend. Because that proxy makes everything same-origin, there are no CORS issues in Docker.</p></div></details>
+
+  <details class="qa" data-t="devops"><summary>Why a multi-stage Dockerfile for the frontend?<span class="tag">DevOps</span></summary><div class="ans"><p>Stage one uses Node to install dependencies and run <code>vite build</code>. Stage two copies only <code>dist/</code> into a small nginx image. The final image has no node_modules or source code, so it's smaller and more secure.</p></div></details>
+
+  <details class="qa" data-t="devops"><summary>How do you manage configuration?<span class="tag">DevOps</span></summary><div class="ans"><p>Environment variables: <code>MONGO_URI</code>, <code>JWT_SECRET</code>, <code>GOOGLE_API_KEY</code>, <code>REDIS_URL</code>, and <code>VITE_API_URL</code> at build time. A committed <code>.env.example</code> documents them, and the real <code>.env</code> is gitignored. <code>dotenv/config</code> is imported first so every module sees the values.</p></div></details>
+
+  <details class="qa" data-t="project"><summary>How did you test it?<span class="tag">Project</span></summary><div class="ans"><p>An end-to-end API script covering register, login, role guards, batch join and leave, quiz create, submit and double-submit, results, leaderboard and delete. There's also a headless-browser (Playwright) run of the full teacher and student journeys. Next I'd move these into Jest + Supertest and Playwright test suites running in CI.</p></div></details>
+
+  <details class="qa" data-t="project"><summary>How would this scale to 10,000 students?<span class="tag">Project</span></summary><div class="ans"><p>The API is stateless (JWT), so it can scale horizontally behind a load balancer, with a shared Redis. I'd paginate leaderboards and results, rely on the existing indexes, move PDF and AI generation to a background job queue (BullMQ) with progress polling, use <code>SCAN</code> for cache invalidation, and add rate limiting.</p></div></details>
+
+  </div>
+</section>
+
+<footer>QuizAI interview guide · See also <a href="project-overview.html">the project overview</a>.</footer>
+</div>
+
+<script>
+  (function () {
+    var input = document.getElementById('q');
+    var buttons = document.querySelectorAll('#filters button');
+    var items = document.querySelectorAll('#qaList details.qa');
+    var empty = document.getElementById('noResults');
+    var filter = 'all';
+
+    function apply() {
+      var term = input.value.trim().toLowerCase();
+      var shown = 0;
+      items.forEach(function (el) {
+        var matchTopic = filter === 'all' || el.dataset.t === filter;
+        var matchText = !term || el.textContent.toLowerCase().indexOf(term) !== -1;
+        var visible = matchTopic && matchText;
+        el.style.display = visible ? '' : 'none';
+        if (visible) shown++;
+        if (term && visible) el.open = true;
+      });
+      empty.style.display = shown ? 'none' : 'block';
+    }
+
+    input.addEventListener('input', apply);
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        filter = b.dataset.f;
+        buttons.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        apply();
+      });
+    });
+  })();
+</script>
+</body>
+</html>

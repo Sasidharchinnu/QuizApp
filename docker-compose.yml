@@ -4,7 +4,12 @@ services:
     ports:
       - "5001:5000"
     env_file:
-      - ./backend/.env 
+      - path: ./backend/.env
+        required: false
+    environment:
+      MONGO_URI: mongodb://mongo:27017/quizapp
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-docker-dev-secret-change-me}
     depends_on:
       - mongo
       - redis
@@ -12,7 +17,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3001:3000"   
+      - "3001:80"
     depends_on:
       - app
 
@@ -33,8 +38,6 @@ services:
 volumes:
   mongo-data:
 
-
-#commands
-#docker-compose up --build
-#docker ps -a
-#docker compos logs app
+# Commands
+#   docker compose up --build      → app at http://localhost:3001
+#   docker compose logs app

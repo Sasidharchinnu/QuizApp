@@ -38,11 +38,12 @@ const ActiveQuizzes = () => {
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="font-semibold text-lg">{quiz.title}</h2>
                   <span className="text-sm text-gray-500">
-                    Due: {new Date(quiz.deadline).toLocaleString()}
+                    {quiz.deadline ? `Due: ${new Date(quiz.deadline).toLocaleString()}` : 'No deadline'}
                   </span>
                 </div>
-                <div className="text-sm text-gray-600 flex gap-4">
-                  <span className="flex items-center gap-1"><BookOpen className="w-4 h-4" /> {quiz.questions?.length || 0} Questions</span>
+                <div className="text-sm text-gray-600 flex flex-wrap gap-4">
+                  {quiz.batchName && <span className="text-teal-700">{quiz.batchName}</span>}
+                  <span className="flex items-center gap-1"><BookOpen className="w-4 h-4" /> {quiz.questionCount} Questions</span>
                   <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {quiz.duration} mins</span>
                 </div>
                 <div className="mt-4 text-right">

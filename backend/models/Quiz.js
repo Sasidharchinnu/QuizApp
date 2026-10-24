@@ -5,14 +5,15 @@ const quizSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // teacher
   batch: { type: mongoose.Schema.Types.ObjectId, ref: 'Batch', required: true },
   source: { type: String, enum: ['ai', 'manual'], required: true },
-  deadline: { type: Date },
+  deadline: { type: Date, default: null }, // null = no deadline
   duration: { type: Number, required: true, default: 30 }, // ✅ duration in minutes
   avgScore: { type: Number, default: 0 },
   questions: [
     {
       question: { type: String, required: true },
       options: [{ type: String, required: true }],
-      correctAnswer: { type: Number, required: true }
+      correctAnswer: { type: Number, required: true }, // index into options
+      explanation: { type: String, default: '' }
     }
   ]
 }, { timestamps: true });

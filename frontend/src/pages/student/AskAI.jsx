@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import StudentLayout from '../../components/StudentLayout';
 import { Send, Bot, User, Lightbulb } from 'lucide-react';
-import axios from '../../api/axios'; // ✅ Custom axios instance
+import axios, { getErrorMessage } from '../../api/axios';
 
 const StudentAskAI = () => {
   const [messages, setMessages] = useState([
@@ -15,6 +15,12 @@ const StudentAskAI = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const bottomRef = useRef(null);
+
+  // Keep the newest message in view
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
 
   const suggestedQuestions = [
     'Explain the quadratic formula',
@@ -25,12 +31,13 @@ const StudentAskAI = () => {
   ];
 
   const handleSend = async () => {
-    if (!inputValue.trim()) return;
+    const question = inputValue.trim();
+    if (!question || isLoading) return;
 
     const userMessage = {
       id: Date.now(),
       type: 'user',
-      content: inputValue,
+      content: question,
       timestamp: new Date().toLocaleTimeString()
     };
 
@@ -40,7 +47,7 @@ const StudentAskAI = () => {
 
     try {
       const res = await axios.post('/student/ask-ai', {
-        question: inputValue
+        question
       });
 
       const aiResponse = {
@@ -58,7 +65,7 @@ const StudentAskAI = () => {
         {
           id: Date.now() + 2,
           type: 'ai',
-          content: "Sorry, I couldn't process that question. Please try again.",
+          content: getErrorMessage(err, "Sorry, I couldn't process that question. Please try again."),
           timestamp: new Date().toLocaleTimeString()
         }
       ]);
@@ -80,7 +87,7 @@ const StudentAskAI = () => {
 
   return (
     <StudentLayout>
-      <div className="h-screen flex flex-col">
+      <div className="h-[calc(100vh-3rem)] flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden">
         {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200 p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Ask AI Tutor</h1>
@@ -117,7 +124,7 @@ const StudentAskAI = () => {
                       : 'bg-white border border-gray-200 text-gray-900'
                   }`}
                 >
-                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   <p
                     className={`text-xs mt-2 ${
                       message.type === 'user' ? 'text-teal-100' : 'text-gray-500'
@@ -152,6 +159,7 @@ const StudentAskAI = () => {
               </div>
             </div>
           )}
+          <div ref={bottomRef} />
         </div>
 
         {/* Suggested Questions */}
@@ -179,7 +187,7 @@ const StudentAskAI = () => {
             <textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               placeholder="Type your question here..."
               className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
               rows="1"

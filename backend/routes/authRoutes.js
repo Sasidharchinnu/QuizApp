@@ -1,24 +1,8 @@
 import express from 'express';
-import jwt from 'jsonwebtoken'
-import { login, register, logout } from '../controllers/authController.js';
+import { login, register, logout, checkAuth } from '../controllers/authController.js';
 import { verifyToken } from '../middleware/auth.js';
 
 const authRouter = express.Router();
-
-authRouter.post('/login', login);
-authRouter.post('/register', register);
-authRouter.post('/logout', logout);
-
-// routes/authRoutes.js
-authRouter.get('/check', verifyToken, (req, res) => {
-  res.status(200).json({ valid: true });
-});
-
-
-
-
-export default authRouter;
-
 
 /**
  * @swagger
@@ -31,7 +15,7 @@ export default authRouter;
  * @swagger
  * /auth/login:
  *   post:
- *     summary: Log in a user
+ *     summary: Log in a user (sets an httpOnly "token" cookie)
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -47,6 +31,8 @@ export default authRouter;
  *     responses:
  *       200:
  *         description: Login successful
+ *       401:
+ *         description: Invalid email or password
  */
 authRouter.post('/login', login);
 
@@ -54,7 +40,7 @@ authRouter.post('/login', login);
  * @swagger
  * /auth/register:
  *   post:
- *     summary: Register a new user
+ *     summary: Register a new user (also logs them in)
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -75,6 +61,8 @@ authRouter.post('/login', login);
  *     responses:
  *       201:
  *         description: User registered successfully
+ *       409:
+ *         description: Email already in use
  */
 authRouter.post('/register', register);
 
@@ -94,14 +82,19 @@ authRouter.post('/logout', logout);
  * @swagger
  * /auth/check:
  *   get:
- *     summary: Check if the JWT token is valid
+ *     summary: Check if the JWT cookie is valid and return the logged-in user
  *     tags: [Auth]
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Token valid
+ *         content:
+ *           application/json:
+ *             example:
+ *               valid: true
+ *               user: { name: "John", email: "john@example.com", role: "student" }
  */
-authRouter.get('/check', verifyToken, (req, res) => {
-  res.status(200).json({ valid: true });
-});
+authRouter.get('/check', verifyToken, checkAuth);
+
+export default authRouter;

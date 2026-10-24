@@ -48,7 +48,7 @@ const StudentDashboard = () => {
         console.error('Error loading dashboard:', errorMessage);
         setError(errorMessage);
         // Optional: Navigate to login on auth errors
-        if (err.response?.status === 401 || err.response?.status === 403) {
+        if (err.response?.status === 401) {
             navigate('/login');
         }
       } finally {
@@ -153,7 +153,10 @@ const StudentDashboard = () => {
           {/* 📝 Quizzes Section */}
           <div>
             {Object.keys(quizzesByBatch).length === 0 ? (
-              <p className="text-center text-gray-500 py-10">You have no quizzes assigned yet.</p>
+              <div className="text-center text-gray-500 py-10">
+                <p className="mb-3">You haven't joined any batches yet.</p>
+                <Link to="/student/join-batch" className="text-teal-600 font-medium hover:underline">Join a batch →</Link>
+              </div>
             ) : (
               Object.entries(quizzesByBatch).map(([batchName, quizzes]) => (
                 <div key={batchName} className="mb-10">
@@ -225,9 +228,9 @@ const QuizCard = ({ quiz, getStatusStyle, getStatusIcon }) => (
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-3 text-sm text-gray-600 gap-2 mb-4">
-      <div className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-gray-400" /><span>{quiz.questions?.length || 0} Questions</span></div>
+      <div className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-gray-400" /><span>{quiz.questionCount ?? 0} Questions</span></div>
       <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-gray-400" /><span>{quiz.duration || 30} minutes</span></div>
-      <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-gray-400" /><span>Due: {new Date(quiz.deadline).toLocaleString()}</span></div>
+      <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-gray-400" /><span>{quiz.deadline ? `Due: ${new Date(quiz.deadline).toLocaleString()}` : 'No deadline'}</span></div>
     </div>
 
     <div className="flex justify-end mt-2">
