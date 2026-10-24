@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { Brain, Mail, Lock, User, UserCheck } from 'lucide-react';
+import { GraduationCap, Mail, Lock, User, UserCheck } from 'lucide-react';
 import axios, { getErrorMessage } from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 
@@ -57,11 +57,11 @@ const Register = () => {
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <div className="bg-teal-600 p-3 rounded-2xl">
-                <Brain className="h-8 w-8 text-white" />
+                <GraduationCap className="h-8 w-8 text-white" />
               </div>
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
-            <p className="text-gray-600">Join QuizAI and start your journey</p>
+            <p className="text-gray-600">Join QuizApp and start your journey</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

@@ -13,7 +13,6 @@ import {
   leaveBatch,
   getActiveQuizzesForStudent,
 } from '../controllers/studentController.js';
-import { askAI } from '../controllers/aiController.js';
 import { verifyToken, requireRole, validateIds } from '../middleware/auth.js';
 
 const studentRouter = express.Router();
@@ -238,29 +237,5 @@ studentRouter.get('/stats', getStudentStats);
  *         description: Number of quizzes
  */
 studentRouter.get('/quiz-counts', getStudentQuizCounts);
-
-/**
- * @swagger
- * /student/ask-ai:
- *   post:
- *     summary: Ask the AI tutor (Google Gemini) a question
- *     tags: [Student]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           example:
- *             question: "Explain Newton's laws in simple terms."
- *     responses:
- *       200:
- *         description: AI response
- *         content:
- *           application/json:
- *             example:
- *               answer: "Newton's laws describe how objects move..."
- *       503:
- *         description: GOOGLE_API_KEY not configured
- */
-studentRouter.post('/ask-ai', askAI);
 
 export default studentRouter;

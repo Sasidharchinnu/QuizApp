@@ -55,7 +55,6 @@ const TeacherQuizzes = () => {
                   <th className="px-6 py-3 text-left">Batch</th>
                   <th className="px-6 py-3 text-left">Deadline</th>
                   <th className="px-6 py-3 text-left">Questions</th>
-                  <th className="px-6 py-3 text-left">Source</th>
                   <th className="px-6 py-3 text-left">Avg. Score</th>
                   <th className="px-6 py-3 text-left">Actions</th>
                 </tr>
@@ -71,7 +70,6 @@ const TeacherQuizzes = () => {
                         : 'No deadline'}
                     </td>
                     <td className="px-6 py-4">{quiz.questions?.length || 0}</td>
-                    <td className="px-6 py-4 capitalize">{quiz.source}</td>
                     <td className="px-6 py-4">{quiz.avgScore}%</td>
                     <td className="px-6 py-4 space-x-3 whitespace-nowrap">
                       <Link to={`/teacher/leaderboard?quizId=${quiz._id}`} className="text-blue-600 hover:underline text-sm">

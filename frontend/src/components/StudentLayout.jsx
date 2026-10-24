@@ -2,10 +2,9 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
-  MessageCircle,
   Trophy,
   LogOut,
-  Brain,
+  GraduationCap,
   Users,
   Rocket
 } from 'lucide-react';
@@ -21,7 +20,6 @@ const StudentLayout = ({ children }) => {
     { name: 'Batches', href: '/student/join-batch', icon: Users },
     { name: 'My Results', href: '/student/my-results', icon: Trophy },
     { name: 'Active Quizzes', href: '/student/active-quizzes', icon: Rocket },
-    { name: 'Ask AI', href: '/student/ask-ai', icon: MessageCircle },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -38,8 +36,8 @@ const StudentLayout = ({ children }) => {
         <div>
           <div className="p-6">
             <div className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-teal-600" />
-              <span className="text-xl font-bold text-gray-900">QuizAI</span>
+              <GraduationCap className="h-8 w-8 text-teal-600" />
+              <span className="text-xl font-bold text-gray-900">QuizApp</span>
             </div>
             <p className="text-sm text-gray-600 mt-1">Student Dashboard</p>
             <p className="text-xs text-gray-400 mt-1 truncate">{user?.name}</p>

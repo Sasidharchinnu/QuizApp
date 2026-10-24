@@ -9,7 +9,6 @@ import {
   getLeaderboard,
   getTeacherProfile,
 } from '../controllers/teacherController.js';
-import { uploadAndGenerateQuiz, publishQuiz, uploadMiddleware } from '../controllers/uploadAndGenerateQuiz.js';
 import { verifyToken, requireRole, validateIds } from '../middleware/auth.js';
 
 const teacherRouter = express.Router();
@@ -162,60 +161,5 @@ teacherRouter.post('/create-quiz', createQuiz);
  */
 teacherRouter.get('/leaderboard', getLeaderboard);
 teacherRouter.get('/leaderboard/:quizId', validateIds('quizId'), getLeaderboard);
-
-/**
- * @swagger
- * /teacher/upload-and-generate:
- *   post:
- *     summary: Upload a PDF and let Google Gemini generate a quiz preview (not saved yet)
- *     tags: [Teacher]
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               file:
- *                 type: string
- *                 format: binary
- *               batchId:
- *                 type: string
- *               numQuestions:
- *                 type: integer
- *                 default: 10
- *     responses:
- *       200:
- *         description: Quiz generated successfully
- *       503:
- *         description: GOOGLE_API_KEY not configured
- */
-teacherRouter.post('/upload-and-generate', uploadMiddleware, uploadAndGenerateQuiz);
-
-/**
- * @swagger
- * /teacher/publish-quiz:
- *   post:
- *     summary: Save a generated (and reviewed) quiz to a batch
- *     tags: [Teacher]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           example:
- *             batchId: "64aabb112233"
- *             quiz:
- *               title: "Photosynthesis"
- *               deadline: "2026-12-31T18:00:00.000Z"
- *               duration: 20
- *               questions:
- *                 - question: "What gas do plants absorb?"
- *                   options: ["O2", "CO2", "N2", "H2"]
- *                   correct: 1
- *     responses:
- *       201:
- *         description: Quiz published successfully
- */
-teacherRouter.post('/publish-quiz', publishQuiz);
 
 export default teacherRouter;

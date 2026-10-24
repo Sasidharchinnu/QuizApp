@@ -44,7 +44,7 @@ const StudentResult = () => {
   };
 
   const handleShare = async () => {
-    const text = `I scored ${resultData.score}% (${resultData.correctAnswers}/${resultData.totalQuestions}) on "${resultData.quizTitle}" in QuizAI!`;
+    const text = `I scored ${resultData.score}% (${resultData.correctAnswers}/${resultData.totalQuestions}) on "${resultData.quizTitle}" on QuizApp!`;
     try {
       if (navigator.share) {
         await navigator.share({ title: 'My Quiz Result', text });
@@ -146,10 +146,10 @@ const StudentResult = () => {
               <span>Share Result</span>
             </button>
             <Link
-              to="/student/ask-ai"
+              to="/student/my-results"
               className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              <span>Ask AI for Help</span>
+              <span>All My Results</span>
             </Link>
           </div>
           {shareMsg && <p className="text-center text-green-600 -mt-4 mb-6">{shareMsg}</p>}

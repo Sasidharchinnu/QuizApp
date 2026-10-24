@@ -188,7 +188,6 @@ export const createQuiz = async (req, res) => {
     const quiz = await Quiz.create({
       title: title.trim(),
       questions: formattedQuestions,
-      source: 'manual',
       createdBy: teacherId,
       batch: batchId,
       deadline: deadline || null,

@@ -126,7 +126,7 @@ const ManualCreate = () => {
     <TeacherLayout>
       <div className="p-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Manual Quiz</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Quiz</h1>
           <p className="text-gray-600">Build custom quizzes with your own questions and answers</p>
         </div>
 

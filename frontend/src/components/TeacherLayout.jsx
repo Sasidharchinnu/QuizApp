@@ -2,12 +2,11 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
-  Upload,
   BookOpen,
   Users,
   BarChart3,
   LogOut,
-  Brain,
+  GraduationCap,
   FileText
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -19,7 +18,6 @@ const TeacherLayout = ({ children }) => {
 
   const navigation = [
     { name: 'Dashboard', href: '/teacher/dashboard', icon: LayoutDashboard },
-    { name: 'Upload Material', href: '/teacher/upload', icon: Upload },
     { name: 'Create Quiz', href: '/teacher/manual-create', icon: BookOpen },
     { name: 'My Quizzes', href: '/teacher/quizzes', icon: FileText },
     { name: 'Leaderboard', href: '/teacher/leaderboard', icon: BarChart3 },
@@ -41,8 +39,8 @@ const TeacherLayout = ({ children }) => {
           <div>
           <div className="p-6">
             <div className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">QuizAI</span>
+              <GraduationCap className="h-8 w-8 text-blue-600" />
+              <span className="text-xl font-bold text-gray-900">QuizApp</span>
             </div>
             <p className="text-sm text-gray-600 mt-1">Teacher Dashboard</p>
             <p className="text-xs text-gray-400 mt-1 truncate">{user?.name}</p>

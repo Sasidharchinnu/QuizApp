@@ -1,4 +1,4 @@
-# QuizAI Frontend
+# QuizApp Frontend
 
 React + Vite + Tailwind frontend. See the [main README](../README.md) for setup.
 

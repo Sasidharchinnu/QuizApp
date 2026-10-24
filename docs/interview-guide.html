@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>QuizAI Interview Guide</title>
+<title>QuizApp Interview Guide</title>
 <style>
   :root {
     --bg: #f7f8fb; --surface: #ffffff; --surface-2: #f1f4f9; --text: #1b2333; --muted: #5b6577;
@@ -82,7 +82,7 @@
 
 <header class="hero">
   <div class="eyebrow">Interview guide</div>
-  <h1>How to explain QuizAI in an interview</h1>
+  <h1>How to explain QuizApp in an interview</h1>
   <p class="lead">Ready-to-say scripts, the architecture in plain words, the design decisions worth defending, real bugs you fixed (great for "tell me about a challenge"), and the questions interviewers are likely to ask, with answers.</p>
   <nav class="toc">
     <a href="#pitch">30-second pitch</a><a href="#walkthrough">2-minute walkthrough</a><a href="#flows">Request flows</a>
@@ -95,7 +95,7 @@
   <p class="sub">Use this for "Tell me about a project you've built."</p>
   <div class="card script">
     <span class="label">Say this</span>
-    <p>"I built <b>QuizAI</b>, a full-stack MERN quiz platform for teachers and students. Teachers organise students into batches and create quizzes either manually or by <b>uploading a PDF that Google Gemini turns into multiple-choice questions</b>, which they review before publishing. Students take <b>timed quizzes</b> that are <b>scored on the server</b>, see explanations for every answer, and can chat with an <b>AI tutor</b>. I used JWT auth in httpOnly cookies with role-based access, MongoDB for storage, Redis caching for dashboards and leaderboards, Swagger for API docs, and Docker to run the whole stack."</p>
+    <p>"I built <b>QuizApp</b>, a full-stack MERN quiz platform for teachers and students. Teachers organise students into <b>batches</b>, create multiple-choice quizzes with explanations, and set a <b>deadline and time limit</b>. Students take <b>timed quizzes</b> that are <b>scored on the server</b> and see the correct answer and explanation for every question. Teachers follow results on a dashboard and a <b>leaderboard they can export to Excel</b>. I used JWT auth in httpOnly cookies with role-based access, MongoDB for storage, Redis caching for dashboards and leaderboards, Swagger for API docs, and Docker to run the whole stack."</p>
   </div>
 </section>
 
@@ -104,11 +104,11 @@
   <p class="sub">Use this when they say "walk me through it". Follow this order: problem → users → architecture → one interesting detail → result.</p>
   <div class="grid">
     <div class="card"><span class="label">1 · Problem</span><p>Writing quizzes and grading them takes teachers a lot of time, and students usually get a score without understanding their mistakes.</p></div>
-    <div class="card"><span class="label">2 · Users &amp; features</span><p>Two roles. <b>Teachers</b> create batches, create quizzes manually or with AI, and watch a dashboard and leaderboard with Excel export. <b>Students</b> join batches, take timed quizzes, review results and ask the AI tutor.</p></div>
-    <div class="card"><span class="label">3 · Architecture</span><p>A React + Vite SPA calls an Express REST API. Data is in MongoDB through Mongoose: Users, Batches, Quizzes with embedded questions, and Results. Redis caches read-heavy endpoints. Gemini does the AI work.</p></div>
-    <div class="card"><span class="label">4 · Interesting detail</span><p>Pick one: the PDF → Gemini JSON-mode pipeline with validation, server-side scoring with a unique index to prevent double submission, or cache invalidation with key patterns.</p></div>
+    <div class="card"><span class="label">2 · Users &amp; features</span><p>Two roles. <b>Teachers</b> create batches and quizzes, and watch a dashboard and leaderboard with Excel export. <b>Students</b> join batches, take timed quizzes and review their results.</p></div>
+    <div class="card"><span class="label">3 · Architecture</span><p>A React + Vite SPA calls an Express REST API. Data is in MongoDB through Mongoose: Users, Batches, Quizzes with embedded questions, and Results. Redis caches read-heavy endpoints.</p></div>
+    <div class="card"><span class="label">4 · Interesting detail</span><p>Pick one: server-side scoring with a unique index to prevent double submission, hiding correct answers from every student-facing endpoint, or cache invalidation with key patterns.</p></div>
     <div class="card"><span class="label">5 · Quality</span><p>Role-protected routes on both client and server, answers never sent to students, Swagger docs, Docker Compose, and an end-to-end test of the main flows.</p></div>
-    <div class="card"><span class="label">6 · What I learned</span><p>Designing APIs around who should see which data, the cookie and CORS rules for cross-site auth, and treating AI output as untrusted input.</p></div>
+    <div class="card"><span class="label">6 · What I learned</span><p>Designing APIs around who should see which data, the cookie and CORS rules for cross-site auth, and keeping a cache consistent with the database.</p></div>
   </div>
   <div class="tip"><b>Tip:</b> Stop after 2 minutes and let them pick what to dig into. Don't quote performance numbers you haven't measured. If asked, explain <i>how</i> you would measure, for example timing an endpoint with and without the cache.</div>
 </section>
@@ -124,9 +124,9 @@
   </div>
 
   <div class="card" style="margin-bottom:16px">
-    <h3>2. AI quiz generation</h3>
-    <div class="flow"><span>Upload PDF</span><i>→</i><span>Multer (memory, 10 MB, PDF only)</span><i>→</i><span>pdf-parse → text</span><i>→</i><span>Gemini JSON mode</span><i>→</i><span>JSON.parse + validate</span><i>→</i><span>Editable preview</span><i>→</i><span>POST /publish-quiz</span></div>
-    <p>The prompt asks for exactly N questions with 4 options, a 0-based <code>correct</code> index and an explanation. The server drops malformed questions, and nothing is saved until the teacher publishes. Publishing checks that the batch belongs to that teacher.</p>
+    <h3>2. Creating a quiz</h3>
+    <div class="flow"><span>POST /teacher/create-quiz</span><i>→</i><span>verifyToken + requireRole('teacher')</span><i>→</i><span>validate questions</span><i>→</i><span>batch owned by teacher?</span><i>→</i><span>Quiz.create</span><i>→</i><span>invalidate caches</span></div>
+    <p>Each question needs text, at least two non-empty options and a valid correct-option index. Questions are embedded in the quiz document. After saving, the API deletes <code>teacherQuizzes:&lt;id&gt;</code> and <code>student:*:batch:&lt;batchId&gt;:quizzes</code> so the teacher and every student in the batch see the new quiz immediately.</p>
   </div>
 
   <div class="card">
@@ -145,7 +145,7 @@
     <div class="card decision"><h3>Embed questions in the quiz</h3><p class="why">A quiz and its questions are always read together and are bounded in size, so embedding means one read and no joins. Results are a separate collection because there are many per quiz and they grow without limit.</p></div>
     <div class="card decision"><h3>Unique index (quiz, student)</h3><p class="why">An application-level "already submitted?" check has a race condition when two requests arrive together. The database index guarantees a single attempt, and the duplicate-key error (11000) is turned into a 409.</p></div>
     <div class="card decision"><h3>Cache-aside with targeted invalidation</h3><p class="why">Read the cache, fall back to MongoDB, and store with a TTL. Writes delete exactly the affected keys or patterns. TTLs are a safety net. Redis is optional, and the app falls back to an in-memory cache so local setup stays simple.</p></div>
-    <div class="card decision"><h3>Human in the loop for AI</h3><p class="why">LLMs can be wrong. JSON mode plus server validation handles format errors, and the editable preview handles content errors. The teacher stays accountable for what's published.</p></div>
+    <div class="card decision"><h3>Status computed, not stored</h3><p class="why">"Available", "completed" and "overdue" are worked out on each request from the deadline and the student's results, instead of being saved. Nothing can go out of sync, and a quiz becomes overdue the moment its deadline passes without any background job.</p></div>
     <div class="card decision"><h3>Role checks on both sides</h3><p class="why"><code>ProtectedRoute</code> on the client is for UX only. Real security is <code>verifyToken</code> + <code>requireRole</code> applied to every route of the student and teacher routers.</p></div>
     <div class="card decision"><h3>Swagger from JSDoc</h3><p class="why">The docs live next to the routes, so they stay in sync. They're also handy for demos and for frontend work in parallel.</p></div>
   </div>
@@ -168,7 +168,7 @@
   <div class="bug"><div class="before">Student-facing endpoints returned full question objects, including <code>correctAnswer</code>, visible in DevTools.</div><div class="after">Return only <code>questionCount</code> in lists. The quiz endpoint returns only question text and options.</div></div>
   <div class="bug"><div class="before">The app crashed at startup if one hardcoded Redis Cloud server was unreachable, and its password was committed in the code.</div><div class="after">Moved to a <code>REDIS_URL</code> env var with a limited reconnect strategy and an automatic in-memory fallback. The leaked password needs rotating.</div></div>
   <div class="bug"><div class="before"><code>client.del('leaderboard:id:*')</code> doesn't support wildcards, so leaderboards stayed stale.</div><div class="after">Added <code>delPattern()</code>: find the keys matching the pattern, then delete them.</div></div>
-  <div class="bug"><div class="before">"Generate quiz from PDF" returned the same 3 hardcoded questions, and the upload route had no auth.</div><div class="after">Real pipeline: pdf-parse → Gemini JSON mode → validation → editable preview. The route requires a teacher login.</div></div>
+  <div class="bug"><div class="before">The teacher dashboard counted only students in batches that already had quizzes, and averaged in quizzes nobody had taken (0%).</div><div class="after">Count unique students across all the teacher's batches, and average only quizzes with at least one submission.</div></div>
   <div class="bug"><div class="before">Quiz timer recreated its interval every second and called submit inside a state updater, which risked double submission.</div><div class="after">One interval, a separate effect submits at 0, and a ref guard plus the DB unique index stop duplicates. Real time spent is recorded.</div></div>
   <div class="bug"><div class="before">Picking a leaderboard filter emptied the other dropdown, because the API returned no options when a filter was applied.</div><div class="after">The API always returns all of the teacher's batches, plus that batch's quizzes.</div></div>
   <div class="bug"><div class="before">Quizzes with no deadline never appeared in "Active Quizzes" (<code>deadline &gt;= now</code> excludes <code>null</code>).</div><div class="after">Query <code>$or: [{deadline: null}, {deadline: {$gte: now}}]</code>.</div></div>
@@ -181,11 +181,11 @@
   <div class="card">
     <ul class="tight">
       <li><b>Tests in CI:</b> Jest + Supertest for the API, Playwright for the UI, running on every push.</li>
-      <li><b>Security hardening:</b> rate limiting on login and AI endpoints (express-rate-limit), helmet, input validation with zod or express-validator, CSRF tokens for the cross-site cookie setup.</li>
+      <li><b>Security hardening:</b> rate limiting on login (express-rate-limit), helmet, input validation with zod or express-validator, CSRF tokens for the cross-site cookie setup.</li>
       <li><b>Server-side timer:</b> store <code>startedAt</code> when a quiz is opened, so a student can't extend time by reloading.</li>
       <li><b>Question bank and randomisation:</b> shuffle questions and options per student to reduce copying.</li>
-      <li><b>Scale:</b> paginate leaderboards, use <code>SCAN</code> instead of <code>KEYS</code> for invalidation, and stream large PDFs or chunk long documents for the LLM.</li>
-      <li><b>Features:</b> password reset by email, editing quizzes after publishing, per-question analytics for teachers, and an AI tutor that knows which question the student got wrong.</li>
+      <li><b>Scale:</b> paginate leaderboards and results, and use <code>SCAN</code> instead of <code>KEYS</code> for cache invalidation.</li>
+      <li><b>Features:</b> password reset by email, editing quizzes after publishing, per-question analytics for teachers, and more question types (multi-select, true/false).</li>
     </ul>
   </div>
 </section>
@@ -202,15 +202,14 @@
     <button data-f="db" aria-pressed="false">MongoDB</button>
     <button data-f="security" aria-pressed="false">Auth &amp; Security</button>
     <button data-f="cache" aria-pressed="false">Redis</button>
-    <button data-f="ai" aria-pressed="false">AI</button>
     <button data-f="devops" aria-pressed="false">DevOps</button>
   </div>
   <p id="noResults">No questions match.</p>
   <div id="qaList">
 
-  <details class="qa" data-t="project"><summary>Why did you build this project?<span class="tag">Project</span></summary><div class="ans"><p>To solve a real classroom problem: writing and grading quizzes takes teachers a lot of time. It also let me practise a complete production-style stack: auth with roles, a relational-style data model in MongoDB, caching, file uploads, LLM integration, API docs and Docker.</p></div></details>
+  <details class="qa" data-t="project"><summary>Why did you build this project?<span class="tag">Project</span></summary><div class="ans"><p>To solve a real classroom problem: running and grading quizzes takes teachers a lot of time, and students rarely get explanations. It also let me practise a complete production-style stack: auth with roles, a relational-style data model in MongoDB, caching, API docs and Docker.</p></div></details>
 
-  <details class="qa" data-t="project"><summary>What was the hardest part?<span class="tag">Project</span></summary><div class="ans"><p>Making the AI output reliable. LLMs sometimes return extra text, wrong indexes or fewer options. I used Gemini's JSON response mode, a strict prompt with an exact schema, server-side validation that drops malformed questions, and a human review step before saving. A close second was the cross-site cookie auth between two Render domains.</p></div></details>
+  <details class="qa" data-t="project"><summary>What was the hardest part?<span class="tag">Project</span></summary><div class="ans"><p>Cross-site cookie auth between the two Render domains. Logins worked locally but not in production until I understood <code>SameSite=None; Secure</code>, <code>trust proxy</code> and CORS with credentials. A close second was keeping the Redis cache consistent: deciding exactly which keys each write must delete.</p></div></details>
 
   <details class="qa" data-t="project"><summary>How do teachers and students see different things?<span class="tag">Project</span></summary><div class="ans"><p>The JWT carries the user's <code>role</code>. On the server, the student router uses <code>verifyToken, requireRole('student')</code> and the teacher router uses <code>requireRole('teacher')</code>, so every endpoint is protected. On the client, <code>ProtectedRoute</code> sends users to their own dashboard. The server checks are the real security; the client checks are only for UX.</p></div></details>
 
@@ -220,15 +219,16 @@
 
   <details class="qa" data-t="react"><summary>How does the quiz timer work, and how do you avoid double submission?<span class="tag">React</span></summary><div class="ans"><p>When the quiz loads I start a single <code>setInterval</code> that decrements <code>timeLeft</code>. A separate <code>useEffect</code> watches <code>timeLeft === 0</code> and calls <code>handleSubmit</code>. Submit uses a <code>useRef</code> flag so the button and the timer can't both fire, and it reads the answers from a ref to avoid stale closures. The database unique index is the final guarantee.</p></div></details>
 
+  <details class="qa" data-t="react"><summary>How does the Excel export work?<span class="tag">React</span></summary><div class="ans"><p>It happens fully in the browser. The leaderboard rows already loaded from the API are mapped to plain objects (rank, name, email, quiz, score, time), turned into a sheet with SheetJS <code>json_to_sheet</code>, and downloaded with <code>writeFile</code>. No extra server endpoint is needed.</p></div></details>
+
   <details class="qa" data-t="react"><summary>Why Context instead of Redux?<span class="tag">React</span></summary><div class="ans"><p>The only truly global state is the logged-in user. Everything else is page-level server data fetched with Axios. Context is enough and avoids boilerplate. If the app grew, I'd add React Query or TanStack Query for server-state caching rather than Redux.</p></div></details>
 
   <details class="qa" data-t="react"><summary>What does useMemo do on the student dashboard?<span class="tag">React</span></summary><div class="ans"><p>It derives the stats (completed count, active count, average score) from the quizzes-by-batch data and only recalculates when that data changes, not on every render.</p></div></details>
 
-  <details class="qa" data-t="node"><summary>Explain the Express middleware chain for a protected request.<span class="tag">Node / Express</span></summary><div class="ans"><p><code>express.json()</code> parses the body, then <code>cookieParser()</code> exposes <code>req.cookies</code>, then <code>cors()</code> sets the headers. On the router, <code>verifyToken</code> verifies the JWT and sets <code>req.user</code>, <code>requireRole</code> checks the role, and <code>validateIds</code> rejects bad ObjectIds with a 400 before the controller runs. A final error handler turns errors such as Multer's into JSON responses.</p></div></details>
+  <details class="qa" data-t="node"><summary>Explain the Express middleware chain for a protected request.<span class="tag">Node / Express</span></summary><div class="ans"><p><code>express.json()</code> parses the body, then <code>cookieParser()</code> exposes <code>req.cookies</code>, then <code>cors()</code> sets the headers. On the router, <code>verifyToken</code> verifies the JWT and sets <code>req.user</code>, <code>requireRole</code> checks the role, and <code>validateIds</code> rejects bad ObjectIds with a 400 before the controller runs. A final error handler turns unexpected errors, such as invalid JSON, into JSON responses.</p></div></details>
 
-  <details class="qa" data-t="node"><summary>How are file uploads handled?<span class="tag">Node / Express</span></summary><div class="ans"><p>Multer with <code>memoryStorage</code>, because the file only needs to be parsed, not stored. Limits are 10&nbsp;MB and a <code>fileFilter</code> that accepts only <code>application/pdf</code>. The buffer goes to <code>pdf-parse</code>. If very little text comes out (a scanned PDF), I return a 422 with a helpful message.</p></div></details>
 
-  <details class="qa" data-t="node"><summary>Which HTTP status codes do you use and why?<span class="tag">Node / Express</span></summary><div class="ans"><p>201 for creation, 400 for invalid input, 401 for a missing or invalid token, 403 for wrong role or not a batch member, 404 for not found, 409 for conflicts (duplicate email, already submitted), 422 for an unreadable PDF, 502 when Gemini fails, and 503 when the AI key isn't configured. Accurate codes let the frontend react correctly, for example redirecting to the result page on a 409.</p></div></details>
+  <details class="qa" data-t="node"><summary>Which HTTP status codes do you use and why?<span class="tag">Node / Express</span></summary><div class="ans"><p>201 for creation, 400 for invalid input, 401 for a missing or invalid token, 403 for wrong role or not a batch member, 404 for not found, and 409 for conflicts (duplicate email, already submitted). Accurate codes let the frontend react correctly, for example redirecting to the result page on a 409.</p></div></details>
 
   <details class="qa" data-t="node"><summary>How did you document the API?<span class="tag">Node / Express</span></summary><div class="ans"><p>With swagger-jsdoc: OpenAPI comments sit above each route, and swagger-ui-express serves them at <code>/api-docs</code>. Cookie auth is declared as a security scheme.</p></div></details>
 
@@ -250,7 +250,7 @@
 
   <details class="qa" data-t="security"><summary>What is CORS and how did you configure it?<span class="tag">Auth &amp; Security</span></summary><div class="ans"><p>Browsers block cross-origin requests unless the server allows them. I use the <code>cors</code> package with an explicit list of allowed origins (extendable with <code>CLIENT_URLS</code>) and <code>credentials: true</code>. A wildcard <code>*</code> isn't allowed when credentials are used.</p></div></details>
 
-  <details class="qa" data-t="security"><summary>Did you find any security issues in your own code?<span class="tag">Auth &amp; Security</span></summary><div class="ans"><p>Yes. A Redis password was hardcoded in the repo (moved to env; it should be rotated), the PDF upload route had no auth, the AI endpoint was public (cost risk), and student endpoints leaked correct answers. All are fixed. It taught me to review what each endpoint returns from the point of view of who calls it.</p></div></details>
+  <details class="qa" data-t="security"><summary>Did you find any security issues in your own code?<span class="tag">Auth &amp; Security</span></summary><div class="ans"><p>Yes. A Redis password was hardcoded in the repo (moved to env; it should be rotated), some routes were missing role checks, and student endpoints leaked correct answers. All are fixed. It taught me to review what each endpoint returns from the point of view of who calls it.</p></div></details>
 
   <details class="qa" data-t="cache"><summary>Why Redis, and what do you cache?<span class="tag">Redis</span></summary><div class="ans"><p>These endpoints are read far more often than they change: the batch list, a teacher's quizzes, a student's batch quizzes, results and leaderboards. Each key has a TTL (5 minutes to 1 hour), for example <code>leaderboard:&lt;teacherId&gt;:&lt;batch&gt;:&lt;quiz&gt;</code>.</p></div></details>
 
@@ -260,28 +260,23 @@
 
   <details class="qa" data-t="cache"><summary>Is using KEYS for pattern deletion OK?<span class="tag">Redis</span></summary><div class="ans"><p>It's fine at this scale, but <code>KEYS</code> blocks Redis while it scans every key. In production I'd use <code>SCAN</code> iteratively, or track keys in a Redis Set per batch or teacher so invalidation is a direct lookup.</p></div></details>
 
-  <details class="qa" data-t="ai"><summary>How do you get structured output from Gemini?<span class="tag">AI</span></summary><div class="ans"><p>I set <code>generationConfig.responseMimeType = "application/json"</code> and include an exact JSON example in the prompt. Then I strip any code fences, <code>JSON.parse</code> it, and validate every question (text present, at least 2 non-empty options, an in-range integer <code>correct</code>). Invalid ones are dropped. If none are left, the API returns 502 so the user can retry.</p></div></details>
-
-  <details class="qa" data-t="ai"><summary>What about long PDFs and token limits?<span class="tag">AI</span></summary><div class="ans"><p>The extracted text is collapsed and capped at about 30k characters before it's sent. For full books I'd chunk the document, generate questions per chunk, then sample and deduplicate.</p></div></details>
-
-  <details class="qa" data-t="ai"><summary>How do you handle hallucinations or wrong answers?<span class="tag">AI</span></summary><div class="ans"><p>The prompt tells the model to use only the provided material, and a teacher reviews and edits every question (including which option is correct) before publishing. AI drafts, and a human approves.</p></div></details>
-
-  <details class="qa" data-t="ai"><summary>How do you protect the API key and control cost?<span class="tag">AI</span></summary><div class="ans"><p>The key lives only on the server (env var, sent in the <code>x-goog-api-key</code> header), never in the frontend. AI endpoints require a logged-in user with the right role, and questions are limited to 2000 characters. Next I'd add per-user rate limits.</p></div></details>
 
   <details class="qa" data-t="devops"><summary>How is the project deployed and run?<span class="tag">DevOps</span></summary><div class="ans"><p>The frontend and backend run as separate services on Render, with MongoDB Atlas and Redis Cloud. Locally, <code>docker compose up</code> starts the backend, MongoDB and Redis, plus an nginx container that serves the React build and proxies <code>/api</code> to the backend. Because that proxy makes everything same-origin, there are no CORS issues in Docker.</p></div></details>
 
   <details class="qa" data-t="devops"><summary>Why a multi-stage Dockerfile for the frontend?<span class="tag">DevOps</span></summary><div class="ans"><p>Stage one uses Node to install dependencies and run <code>vite build</code>. Stage two copies only <code>dist/</code> into a small nginx image. The final image has no node_modules or source code, so it's smaller and more secure.</p></div></details>
 
-  <details class="qa" data-t="devops"><summary>How do you manage configuration?<span class="tag">DevOps</span></summary><div class="ans"><p>Environment variables: <code>MONGO_URI</code>, <code>JWT_SECRET</code>, <code>GOOGLE_API_KEY</code>, <code>REDIS_URL</code>, and <code>VITE_API_URL</code> at build time. A committed <code>.env.example</code> documents them, and the real <code>.env</code> is gitignored. <code>dotenv/config</code> is imported first so every module sees the values.</p></div></details>
+  <details class="qa" data-t="devops"><summary>How do you manage configuration?<span class="tag">DevOps</span></summary><div class="ans"><p>Environment variables: <code>MONGO_URI</code>, <code>JWT_SECRET</code>, <code>REDIS_URL</code>, and <code>VITE_API_URL</code> at build time. A committed <code>.env.example</code> documents them, and the real <code>.env</code> is gitignored. <code>dotenv/config</code> is imported first so every module sees the values.</p></div></details>
+
+  <details class="qa" data-t="project"><summary>How do deadlines and durations work together?<span class="tag">Project</span></summary><div class="ans"><p>The <b>deadline</b> is when a quiz stops accepting new attempts; opening it after that returns 403 and it shows as "overdue". The <b>duration</b> is the time limit once a student starts; the timer auto-submits at zero. A quiz with no deadline stays open. Today the timer runs in the browser; storing <code>startedAt</code> on the server would make it tamper-proof.</p></div></details>
 
   <details class="qa" data-t="project"><summary>How did you test it?<span class="tag">Project</span></summary><div class="ans"><p>An end-to-end API script covering register, login, role guards, batch join and leave, quiz create, submit and double-submit, results, leaderboard and delete. There's also a headless-browser (Playwright) run of the full teacher and student journeys. Next I'd move these into Jest + Supertest and Playwright test suites running in CI.</p></div></details>
 
-  <details class="qa" data-t="project"><summary>How would this scale to 10,000 students?<span class="tag">Project</span></summary><div class="ans"><p>The API is stateless (JWT), so it can scale horizontally behind a load balancer, with a shared Redis. I'd paginate leaderboards and results, rely on the existing indexes, move PDF and AI generation to a background job queue (BullMQ) with progress polling, use <code>SCAN</code> for cache invalidation, and add rate limiting.</p></div></details>
+  <details class="qa" data-t="project"><summary>How would this scale to 10,000 students?<span class="tag">Project</span></summary><div class="ans"><p>The API is stateless (JWT), so it can scale horizontally behind a load balancer, with a shared Redis. I'd paginate leaderboards and results, rely on the existing indexes, use <code>SCAN</code> for cache invalidation, and add rate limiting.</p></div></details>
 
   </div>
 </section>
 
-<footer>QuizAI interview guide · See also <a href="project-overview.html">the project overview</a>.</footer>
+<footer>QuizApp interview guide · See also <a href="project-overview.html">the project overview</a>.</footer>
 </div>
 
 <script>

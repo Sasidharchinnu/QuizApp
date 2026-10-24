@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>QuizAI Project Overview</title>
+<title>QuizApp Project Overview</title>
 <style>
   :root {
     --bg: #f7f8fb; --surface: #ffffff; --surface-2: #f1f4f9; --text: #1b2333; --muted: #5b6577;
@@ -79,8 +79,8 @@
 
 <header class="hero">
   <div class="eyebrow">Project overview · for new readers</div>
-  <h1>QuizAI: an AI-powered quiz platform for classrooms</h1>
-  <p class="lead">Teachers create quizzes in seconds, either by typing questions or by uploading a PDF that AI turns into multiple-choice questions. Students take timed quizzes, get instant scored feedback with explanations, and can ask an AI tutor when they're stuck.</p>
+  <h1>QuizApp: a quiz platform for classrooms</h1>
+  <p class="lead">Teachers create multiple-choice quizzes and assign them to their batches. Students take timed quizzes and get instant scored feedback with explanations. Teachers follow everyone's progress on a dashboard and leaderboard.</p>
   <nav class="toc">
     <a href="#problem">The problem</a><a href="#who">Who uses it</a><a href="#journeys">How it's used</a>
     <a href="#how">How it works</a><a href="#stack">Tech stack</a><a href="#data">Data</a>
@@ -91,9 +91,9 @@
 <section id="problem">
   <h2>The problem it solves</h2>
   <div class="grid">
-    <div class="card"><h3>Writing quizzes takes time</h3><p>Turning a chapter of notes into good multiple-choice questions can take a teacher an hour. QuizAI drafts them from a PDF in under a minute. The teacher then reviews and edits them.</p></div>
+    <div class="card"><h3>Running quizzes is messy</h3><p>Paper quizzes or scattered forms make it hard to set time limits and deadlines, or to know who has attempted what. QuizApp keeps every quiz, batch and attempt in one place.</p></div>
     <div class="card"><h3>Grading is repetitive</h3><p>Every submission is scored automatically on the server, and the teacher gets a ranked leaderboard they can export to Excel.</p></div>
-    <div class="card"><h3>Students need feedback</h3><p>Right after submitting, students see which answers were right or wrong and why, and they can ask the AI tutor follow-up questions.</p></div>
+    <div class="card"><h3>Students need feedback</h3><p>Right after submitting, students see which answers were right or wrong and the teacher's explanation for each question.</p></div>
   </div>
 </section>
 
@@ -103,12 +103,12 @@
     <div class="card">
       <span class="pill teacher">Teacher</span>
       <h3>Creates and tracks</h3>
-      <p>Creates <b>batches</b> (classes), builds quizzes manually or with AI, sets a deadline and time limit, and follows results on a dashboard and leaderboard.</p>
+      <p>Creates <b>batches</b> (classes), writes quizzes with explanations, sets a deadline and time limit, and follows results on a dashboard and leaderboard.</p>
     </div>
     <div class="card">
       <span class="pill student">Student</span>
       <h3>Joins, attempts, learns</h3>
-      <p>Joins one or more batches, sees which quizzes are available, completed or overdue, takes timed quizzes, reviews results and chats with the AI tutor.</p>
+      <p>Joins one or more batches, sees which quizzes are available, completed or overdue, takes timed quizzes and reviews results.</p>
     </div>
   </div>
 </section>
@@ -121,8 +121,8 @@
       <ol class="steps">
         <li><b>Register as a teacher</b><span>You are logged in straight away.</span></li>
         <li><b>Create a batch</b><span>For example, "CS-A 2025". Students will look for this name.</span></li>
-        <li><b>Create a quiz</b><span>Type the questions on <i>Create Quiz</i>, or upload a PDF on <i>Upload Material</i> and let Gemini draft them.</span></li>
-        <li><b>Review and publish</b><span>Fix any AI mistakes, choose the correct answers, set the deadline and duration, then publish.</span></li>
+        <li><b>Create a quiz</b><span>On <i>Create Quiz</i>, write each question, its options and an optional explanation, and mark the correct option.</span></li>
+        <li><b>Set rules and publish</b><span>Choose the batch, an optional deadline and the duration in minutes, then save. Students see it immediately.</span></li>
         <li><b>Track results</b><span>The dashboard shows averages and submissions. The leaderboard filters by batch or quiz and exports to Excel.</span></li>
       </ol>
     </div>
@@ -133,7 +133,7 @@
         <li><b>Join a batch</b><span>Pick your teacher's batch from the list.</span></li>
         <li><b>Start a quiz</b><span>From the dashboard or <i>Active Quizzes</i>. A countdown timer starts.</span></li>
         <li><b>Submit</b><span>Manually, or automatically when the time runs out. Each quiz can be taken only once.</span></li>
-        <li><b>Learn from the result</b><span>See your score, correct answers and explanations, then ask the AI tutor about anything unclear.</span></li>
+        <li><b>Learn from the result</b><span>See your score, the correct answers and the explanations, and review all past results any time.</span></li>
       </ol>
     </div>
   </div>
@@ -141,9 +141,9 @@
 
 <section id="how">
   <h2>How it works</h2>
-  <p>QuizAI is a classic three-tier web app. The <b>React</b> frontend runs in the browser and talks to an <b>Express</b> REST API. The API stores everything in <b>MongoDB</b>, keeps frequently read data in a <b>Redis</b> cache, and calls <b>Google Gemini</b> for the AI features.</p>
-  <div class="diagram" role="img" aria-label="Architecture: Browser running React talks to Express API over HTTPS with a cookie; API uses MongoDB, Redis cache and Google Gemini">
-    <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg">
+  <p>QuizApp is a classic three-tier web app. The <b>React</b> frontend runs in the browser and talks to an <b>Express</b> REST API. The API stores everything in <b>MongoDB</b> and keeps frequently read data in a <b>Redis</b> cache.</p>
+  <div class="diagram" role="img" aria-label="Architecture: Browser running React talks to Express API over HTTPS with a cookie; API uses MongoDB and a Redis cache">
+    <svg viewBox="0 0 860 240" xmlns="http://www.w3.org/2000/svg">
       <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color: var(--muted)"/></marker></defs>
       <rect class="box a" x="20" y="100" width="190" height="100" rx="12"/>
       <text x="115" y="138" text-anchor="middle" font-weight="700">Browser</text>
@@ -158,32 +158,27 @@
       <text x="430" y="116" text-anchor="middle" font-weight="700">Express API</text>
       <text x="430" y="140" text-anchor="middle" class="small">Auth · role checks</text>
       <text x="430" y="158" text-anchor="middle" class="small">Quizzes · scoring · leaderboard</text>
-      <text x="430" y="176" text-anchor="middle" class="small">PDF parsing (Multer + pdf-parse)</text>
+      <text x="430" y="176" text-anchor="middle" class="small">Batches · results · dashboards</text>
       <text x="430" y="194" text-anchor="middle" class="small">Swagger docs at /api-docs</text>
 
-      <path class="line" d="M540 110 L650 50"/>
-      <path class="line" d="M540 150 L650 150"/>
-      <path class="line" d="M540 190 L650 250"/>
+      <path class="line" d="M540 120 L650 80"/>
+      <path class="line" d="M540 180 L650 190"/>
 
-      <rect class="box" x="650" y="20" width="190" height="60" rx="12"/>
-      <text x="745" y="46" text-anchor="middle" font-weight="700">MongoDB</text>
-      <text x="745" y="66" text-anchor="middle" class="small">users, batches, quizzes, results</text>
-      <rect class="box" x="650" y="120" width="190" height="60" rx="12"/>
-      <text x="745" y="146" text-anchor="middle" font-weight="700">Redis cache</text>
-      <text x="745" y="166" text-anchor="middle" class="small">optional, falls back to memory</text>
-      <rect class="box" x="650" y="220" width="190" height="60" rx="12"/>
-      <text x="745" y="246" text-anchor="middle" font-weight="700">Google Gemini</text>
-      <text x="745" y="266" text-anchor="middle" class="small">quiz generation · AI tutor</text>
+      <rect class="box" x="650" y="50" width="190" height="60" rx="12"/>
+      <text x="745" y="76" text-anchor="middle" font-weight="700">MongoDB</text>
+      <text x="745" y="96" text-anchor="middle" class="small">users, batches, quizzes, results</text>
+      <rect class="box" x="650" y="160" width="190" height="60" rx="12"/>
+      <text x="745" y="186" text-anchor="middle" font-weight="700">Redis cache</text>
+      <text x="745" y="206" text-anchor="middle" class="small">optional, falls back to memory</text>
     </svg>
   </div>
 
-  <h3 style="margin-top:28px">What happens when a teacher uploads a PDF</h3>
+  <h3 style="margin-top:28px">What happens when a teacher creates a quiz</h3>
   <ol class="steps">
-    <li><b>Upload</b><span>The PDF is sent as <code>multipart/form-data</code>. Multer keeps it in memory, accepting PDFs up to 10&nbsp;MB.</span></li>
-    <li><b>Extract text</b><span><code>pdf-parse</code> reads the text. Scanned, image-only PDFs are rejected with a clear message.</span></li>
-    <li><b>Ask Gemini</b><span>The text and a strict prompt go to Gemini in JSON mode, asking for N questions with 4 options, the correct index and an explanation.</span></li>
-    <li><b>Validate</b><span>The server parses the JSON and drops any malformed question before showing a preview.</span></li>
-    <li><b>Teacher reviews, then publishes</b><span>Nothing is saved until the teacher clicks <i>Publish</i>.</span></li>
+    <li><b>Fill in the form</b><span>Title, batch, optional deadline, duration, and each question with its options, correct option and explanation.</span></li>
+    <li><b>Validate</b><span>The API checks every question has text, at least two non-empty options and a valid correct option, and that the batch belongs to this teacher.</span></li>
+    <li><b>Save</b><span>The quiz is stored in MongoDB with its questions embedded inside it.</span></li>
+    <li><b>Refresh caches</b><span>Cached quiz lists for the teacher and for every student in that batch are cleared, so the new quiz shows up right away.</span></li>
   </ol>
 
   <h3 style="margin-top:12px">What happens when a student submits</h3>
@@ -206,8 +201,7 @@
       <tr><td>Backend</td><td>Node.js, Express 5</td><td>REST API with middleware for auth and roles</td></tr>
       <tr><td>Database</td><td>MongoDB + Mongoose</td><td>Flexible documents; quizzes embed their questions</td></tr>
       <tr><td>Auth</td><td>JWT in an httpOnly cookie, bcrypt</td><td>Hashed passwords; the token can't be read by page JavaScript</td></tr>
-      <tr><td>AI</td><td>Google Gemini (<code>gemini-2.5-flash</code>)</td><td>Generates quiz questions and answers tutor questions</td></tr>
-      <tr><td>Files</td><td>Multer, pdf-parse</td><td>Receives uploads and extracts PDF text</td></tr>
+      <tr><td>Export</td><td>SheetJS (xlsx)</td><td>Leaderboard download as an Excel file</td></tr>
       <tr><td>Cache</td><td>Redis (in-memory fallback)</td><td>Faster dashboards and leaderboards</td></tr>
       <tr><td>Docs &amp; DevOps</td><td>Swagger, Docker, docker-compose, nginx</td><td>Interactive API docs; one command starts the whole stack</td></tr>
     </table>
@@ -219,7 +213,7 @@
   <div class="grid">
     <div class="card"><h3>User</h3><p>name, email (unique), hashed password, role (<code>student</code> or <code>teacher</code>), list of joined batches</p></div>
     <div class="card"><h3>Batch</h3><p>name (unique), teacher, list of students. A class or group.</p></div>
-    <div class="card"><h3>Quiz</h3><p>title, batch, creator, source (<code>ai</code> or <code>manual</code>), deadline, duration, average score, and its questions (text, options, correct index, explanation)</p></div>
+    <div class="card"><h3>Quiz</h3><p>title, batch, creator, deadline, duration, average score, and its questions (text, options, correct index, explanation)</p></div>
     <div class="card"><h3>Result</h3><p>quiz, student, score, number correct, time spent, the chosen answers. One per student per quiz.</p></div>
   </div>
 </section>
@@ -229,7 +223,7 @@
   <p>You need Node.js 18+ and MongoDB, either locally or on a free MongoDB Atlas cluster.</p>
 <pre><code># Backend
 cd backend
-cp .env.example .env      # set MONGO_URI, JWT_SECRET and (for AI) GOOGLE_API_KEY
+cp .env.example .env      # set MONGO_URI and JWT_SECRET
 npm install
 npm run dev               # API on http://localhost:5000, docs on /api-docs
 
@@ -237,7 +231,7 @@ npm run dev               # API on http://localhost:5000, docs on /api-docs
 cd frontend
 npm install
 npm run dev               # open http://localhost:5173</code></pre>
-  <div class="note"><b>Tip:</b> Everything except <i>Ask AI</i> and <i>Generate quiz from PDF</i> works without a Gemini key. Get a free key at aistudio.google.com. Redis is optional too. Or run the whole stack with <code>docker compose up --build</code> and open http://localhost:3001.</div>
+  <div class="note"><b>Tip:</b> Redis is optional; without it the app uses a built-in memory cache. Or run the whole stack with <code>docker compose up --build</code> and open http://localhost:3001.</div>
   <p><b>Try it:</b> register a teacher in one browser and a student in a private window. As the teacher, create a batch and a quiz. As the student, join the batch and take the quiz. Then check the teacher's leaderboard.</p>
 </section>
 
@@ -258,12 +252,12 @@ npm run dev               # open http://localhost:5173</code></pre>
   <h2>FAQ</h2>
   <details><summary>Can a student see the correct answers before submitting?</summary><p>No. The quiz endpoint for students strips the correct answers, and scoring happens only on the server. Answers are revealed on the result page after submitting.</p></details>
   <details><summary>Can a student retake a quiz?</summary><p>No. Each student can submit each quiz once. This is enforced by a unique database index.</p></details>
-  <details><summary>Is the AI always right?</summary><p>Not always. That's why AI-generated quizzes open in an editable preview: the teacher can fix wording, change the correct option or remove a question before publishing.</p></details>
+  <details><summary>Can a teacher change a quiz after publishing?</summary><p>Not yet. A teacher can delete a quiz (which also removes its results) and create a corrected one. Editing published quizzes is a planned improvement.</p></details>
   <details><summary>What if Redis isn't available?</summary><p>The app falls back to an in-memory cache automatically, so it keeps working.</p></details>
   <details><summary>Where is the API documented?</summary><p>At <code>/api-docs</code> on the backend (Swagger UI), and summarised in the README.</p></details>
 </section>
 
-<footer>QuizAI · MERN + Google Gemini · See also <a href="interview-guide.html">the interview guide</a>.</footer>
+<footer>QuizApp · MERN stack · See also <a href="interview-guide.html">the interview guide</a>.</footer>
 </div>
 </body>
 </html>

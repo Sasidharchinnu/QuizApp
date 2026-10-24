@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, BookOpen, Users, BarChart3, Zap, CheckCircle } from 'lucide-react';
+import { GraduationCap, BookOpen, Users, BarChart3, Zap, CheckCircle, Timer } from 'lucide-react';
 
 const LandingPage = () => {
   return (
@@ -10,8 +10,8 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">QuizAI</span>
+              <GraduationCap className="h-8 w-8 text-blue-600" />
+              <span className="text-xl font-bold text-gray-900">QuizApp</span>
             </div>
             <div className="flex items-center space-x-4">
               <Link
@@ -36,14 +36,14 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Empowering Assessments with
+              Quizzes made
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-600">
-                {' '}AI
+                {' '}simple
               </span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Transform your teaching and learning experience with AI-powered quiz generation, 
-              intelligent doubt resolution, and comprehensive analytics.
+              Teachers create quizzes for their batches in minutes. Students take timed quizzes,
+              get instant results with explanations, and teachers track progress on a live leaderboard.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
               <Link
@@ -68,21 +68,21 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose QuizAI?
+              Why Choose QuizApp?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Our platform combines the power of AI with intuitive design to make assessments smarter and more engaging.
+              Everything a classroom needs to run quizzes, from creation to grading to analytics.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-2xl border border-blue-200">
               <div className="bg-blue-600 w-12 h-12 rounded-xl flex items-center justify-center mb-6">
-                <Brain className="h-6 w-6 text-white" />
+                <Timer className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">AI Quiz Generation</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Timed Quizzes</h3>
               <p className="text-gray-600">
-                Upload your materials and let AI generate comprehensive quizzes in seconds. Save time and ensure quality.
+                Set a duration and a deadline for every quiz. Quizzes submit automatically when time runs out.
               </p>
             </div>
 
@@ -90,9 +90,9 @@ const LandingPage = () => {
               <div className="bg-teal-600 w-12 h-12 rounded-xl flex items-center justify-center mb-6">
                 <Users className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Smart Doubt Resolution</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Batch Management</h3>
               <p className="text-gray-600">
-                Students can ask questions anytime and get instant, intelligent responses from our AI tutor.
+                Organise students into batches. Students join with one click and see only their batch's quizzes.
               </p>
             </div>
 
@@ -112,7 +112,7 @@ const LandingPage = () => {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Easy Quiz Creation</h3>
               <p className="text-gray-600">
-                Create quizzes manually or with AI assistance. Both options are designed for maximum efficiency.
+                Write questions, mark the correct option and add an explanation. Publish to any of your batches instantly.
               </p>
             </div>
 
@@ -145,11 +145,11 @@ const LandingPage = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Brain className="h-8 w-8 text-blue-400" />
-                <span className="text-xl font-bold">QuizAI</span>
+                <GraduationCap className="h-8 w-8 text-blue-400" />
+                <span className="text-xl font-bold">QuizApp</span>
               </div>
               <p className="text-gray-400">
-                Empowering education through intelligent assessments and AI-powered learning.
+                A simple quiz platform for teachers and students.
               </p>
             </div>
             <div>
@@ -181,7 +181,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 QuizAI. All rights reserved.</p>
+            <p>&copy; 2025 QuizApp. All rights reserved.</p>
           </div>
         </div>
       </footer>

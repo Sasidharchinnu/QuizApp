@@ -46,7 +46,7 @@ app.use('/api/teacher', teacherRouter);
 // Unknown API routes
 app.use('/api', (req, res) => res.status(404).json({ error: 'Route not found' }));
 
-// Central error handler (e.g. multer file errors)
+// Central error handler (e.g. invalid JSON body)
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.message);
   res.status(err.status || 400).json({ error: err.message || 'Something went wrong' });

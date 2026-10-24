@@ -8,8 +8,6 @@ import {
   TrendingUp,
   BarChart3,
   Plus,
-  Upload,
-  Brain
 } from 'lucide-react';
 import axios from '../../api/axios';
 
@@ -93,18 +91,18 @@ const Dashboard = () => {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <Link
-            to="/teacher/upload"
+            to="/teacher/batches/create"
             className="group bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
           >
             <div className="flex items-center justify-between mb-4">
-              <Brain className="h-8 w-8" />
+              <Users className="h-8 w-8" />
               <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-                <Upload className="h-5 w-5" />
+                <Plus className="h-5 w-5" />
               </div>
             </div>
-            <h3 className="text-xl font-bold mb-2">Create Quiz with AI</h3>
+            <h3 className="text-xl font-bold mb-2">Manage Batches</h3>
             <p className="text-blue-100 text-sm">
-              Upload your materials and let AI generate comprehensive quizzes
+              Create batches and see which students have joined
             </p>
           </Link>
 
@@ -118,7 +116,7 @@ const Dashboard = () => {
                 <Plus className="h-5 w-5" />
               </div>
             </div>
-            <h3 className="text-xl font-bold mb-2">Create Manual Quiz</h3>
+            <h3 className="text-xl font-bold mb-2">Create Quiz</h3>
             <p className="text-teal-100 text-sm">
               Build custom quizzes with your own questions and answers
             </p>
